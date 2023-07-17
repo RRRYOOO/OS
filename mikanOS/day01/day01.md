@@ -82,3 +82,13 @@ git checkout osbook_day26a
 ## 1.9 C言語でハローワールド
 - バイナリエディタで打ち込んだ機械語プログラムよ同じ動きをするC言語プログラムを作成する。
 - すでに開発環境をインストールしていれば$HOME/osbook/day01c/hello.cにソースコードがある。
+- プログラムの本体となる箇所はEfiMain()関数になる。  
+  ### hello.c
+  ```
+  EFI_STATUS EfiMain(EFI_HANDLE        ImageHandle,
+                   EFI_SYSTEM_TABLE  *SystemTable) {
+    SystemTable->ConOut->OutputString(SystemTable->ConOut, L"Hello, world!\n");
+    while (1);
+    return 0;
+  }
+  ```
