@@ -87,8 +87,7 @@ EFI_STATUS EFIAPI UefiMain(
       ```
   - 出力されたファイルをBOOTX64.EFIにリネイムして以下のコマンドで実行する。
     - QEMU上に「Hello,Mikan World!」 と表示される。
-    ```
-    $HOME/osbook/devenv/run_qemu.sh BOOTX64.EFI
-    ```
-    
+      ```
+      $HOME/osbook/devenv/run_qemu.sh BOOTX64.EFI
+      ```
     
