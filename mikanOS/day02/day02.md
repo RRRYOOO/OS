@@ -66,5 +66,26 @@ EFI_STATUS EFIAPI UefiMain(
     cd $HOME/edk2
     ln -s $HOME/workspace/mikanos/MikanLoaderPkg ./
     ```
+  - edksetup.shを読み込む。
+    - sourceコマンドでedksetup.shファイルを読み込むと、Conf/target.txtファイルが自動的に生成される。
+    ```
+    source edksetup.sh
+    ```
+  - 生成されたConf/target.txtを編集する。
+    - Conf/target.txtでMikanLoaderPkgをビルド対象として指定する。以下の表のように設定する。
+      | 設定項目 | 設定値 |
+      ----|---- 
+      | ACTIVE_PLATFORM | MikanLoaderPkg/MikanLoaderPkg.dsc |
+      | TARGET | DEBUG |
+      | TARGET_ARCH | X64 |
+      | TOOL_CHAIN_TAG | CLANG38 |
+  - 設定が完了したらEDK2付属のbuildコマンドでビルドする。
+    - ビルドが完了すると、$HOME/edk2/Build/MikanLoaderX64/DEBUG_CLANG38/X64?loader.efiに目的のファイルが出力される。
+      ```
+      cd $HOME/edk2
+      build
+      ```
+  - 出力されたファイルをBOOTX64.EFIにリネイムして以下のコマンドで実行する。
+    - QEMU上に「Hello,Mikan World!」 と表示される。
     
     
