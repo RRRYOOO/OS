@@ -92,3 +92,14 @@ git checkout osbook_day26a
     return 0;
   }
   ```
+- このプログラムをコンパイル&リンクする手順を以下に示す。
+```
+cd $HOME/osbook/day01/c
+clang -target x86_64-pc-win32-coff \
+  -mno-red-zone -fno-stack-protector -fshort-wchar -wall -c hello.c
+lld-link /subsystem:efi_application /entry:EfiMain /out:hello.efi hello.o
+```
+  - clangは、Linux用のコンパイラである。このコンパイラは通常はELF形式ｃでファイルを出力するが、「x86_64-pc-win32-coff」を指定することでWindows向けのCOFF形式で出力可能。次に実行するlld-linkがCOFF形式を要求するため、このオプションを指定する必要がある。コンパイラが完了すると、hello.oというCOFF形式のファイルが生成される。
+  - lld-linkはPE形式の実行可能ファイルを作成するためのリンカである。ここでは、hello.oをリンクしてhello.efiを得るのに利用する。このリンカの主目的はWindows用のPEファイルを生成することだが、「/subsystem:efi_application」というオプションを指定すると、UEFI用のPEファイルを生成してくれる。
+- 上記の手順で作成したhello.efiをBOOTX64.efiという名前で指定のディレクトリに保存しておくと、起動時に「Hello, world!」と表示される。
+  
