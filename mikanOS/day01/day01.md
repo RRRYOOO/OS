@@ -39,7 +39,7 @@ git checkout osbook_day26a
 - Binary Editor Bzでコードを作成し、BOOTX64.EFIの名前で保存する。  
 　　https://github.com/RRRYOOO/OS/blob/main/mikanOS/day01/BOOTX64.efi
 ## 1.4 エミュレータでのやり方
--「QEMU」というエミュレータを使って表示する方法について記載する。
+- 「QEMU」というエミュレータを使って表示する方法について記載する。
 - ここでは事前に「A.00 開発環境のインストール」「A.01 WSLのインストール」「A.02 WSLでQEMUを使う準備」を済ませておく必要がある。
 - QEMUでBOOTX64.EFIを起動するには2段階の処理が必要。
    - BOOTX64.EFIを含んだディスクイメージを作成する。
