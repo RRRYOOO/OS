@@ -36,3 +36,35 @@ edk2/
 ```
 - 「Loader.inf」のENTRY_POINT設定には、このUEFIアプリケーションのエントリポイントを記載する。
 - エントリポイントとは、起動時に最初に実行される関数のことである。通常のCプログラムではmain()という名前は固定だが、EDK2ではUEFIアプリケーションごとに自由にエントリポイント名を指定できる。
+#### <Main.c>
+```
+#include  <Uefi.h>
+#include  <Library/UefiLib.h>
+
+EFI_STATUS EFIAPI UefiMain(
+    EFI_HANDLE image_handle,
+    EFI_SYSTEM_TABLE *system_table) {
+  Print(L"Hello, Mikan World!\n");
+  while (1);
+  return EFI_SUCCESS;
+}
+```
+- ハローワールドプログラムの本体はMain.cファイルである。
+- 第1章のhello.cで書いたものの大部分はEDK2のライブラリが提供しているため、Main.cでは#includeでそれを取り込むだけでよくなったためシンプルになった。
+- Uefi.hじゃEDK2にむくまれるヘッダファイルで、実体は$HOME/edk2/MdePkg/Include/Uefi.hにある。
+- Print()関数は、C言語のprintf()関数と似た、文字列の表示関数である。printf()と違うのは引数にワイド文字を渡さなければならないところである。文字列の前にLと書いてるのが、これはワイド文字から構成された文字列を表現するためのやり方である。UEFIで文字表示するにはワイド文字にすると覚えておくこと。
+- 上記のソースコードをビルドする手順を以下に示す。
+  - MikanOSのリポジトリでビルドしたいバージョンを呼び出しておく。
+    - git checkoutは、指定したバージョン(タグ)のソースコードを呼び出し、ファイルとして配置するコマンドである。 
+    ```
+    cd $HOME/workspace/mikanos
+    git checkout osbook_day02a
+    ```
+  - MikanLoaderPkgにシンボリックリンクを張る。
+    - $HOME/edk2の中に、$HOME/workspace/mikanos/MikanLoaderPkgを指すシンボリックリンクを作成する。
+    ```
+    cd $HOME/edk2
+    ln -s $HOME/workspace/mikanos/MikanLoaderPkg ./
+    ```
+    
+    
