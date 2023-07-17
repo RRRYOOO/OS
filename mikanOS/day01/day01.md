@@ -16,7 +16,7 @@
 ## B.00 MikanOSの入手
 - MikanOSのソースコードは、以下のサイトから入手可能。  
   　　https://github.com/uchan-nos/mikanos.git
-- $HOME/workspaceは以下にクローンを作成する。  
+- $HOME/workspace配下にクローンを作成する。  
 ```
 mkdir $HOME/workspace
 cd  $HOME/workspace
