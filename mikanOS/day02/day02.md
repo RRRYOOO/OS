@@ -90,4 +90,5 @@ EFI_STATUS EFIAPI UefiMain(
       ```
       $HOME/osbook/devenv/run_qemu.sh BOOTX64.EFI
       ```
-    
+  - 実行結果は以下の通り。
+    ![Image 1](HelloMikanWorld.png)
