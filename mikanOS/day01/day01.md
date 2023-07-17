@@ -83,7 +83,7 @@ git checkout osbook_day26a
 - バイナリエディタで打ち込んだ機械語プログラムよ同じ動きをするC言語プログラムを作成する。
 - すでに開発環境をインストールしていれば$HOME/osbook/day01c/hello.cにソースコードがある。
 - プログラムの本体となる箇所はEfiMain()関数になる。  
-  ### hello.c
+  #### <hello.c>
   ```
   EFI_STATUS EfiMain(EFI_HANDLE        ImageHandle,
                    EFI_SYSTEM_TABLE  *SystemTable) {
