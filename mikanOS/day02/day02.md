@@ -80,7 +80,7 @@ EFI_STATUS EFIAPI UefiMain(
       | TARGET_ARCH | X64 |
       | TOOL_CHAIN_TAG | CLANG38 |
   - 設定が完了したらEDK2付属のbuildコマンドでビルドする。
-    - ビルドが完了すると、$HOME/edk2/Build/MikanLoaderX64/DEBUG_CLANG38/X64?loader.efiに目的のファイルが出力される。
+    - ビルドが完了すると、$HOME/edk2/Build/MikanLoaderX64/DEBUG_CLANG38/X64/loader.efiに目的のファイルが出力される。
       ```
       cd $HOME/edk2
       build
