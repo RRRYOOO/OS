@@ -64,7 +64,7 @@ EFI_STATUS EFIAPI UefiMain(
     - $HOME/edk2の中に、$HOME/workspace/mikanos/MikanLoaderPkgを指すシンボリックリンクを作成する。
     ```
     cd $HOME/edk2
-    ln -s $HOME/workspace/mikanos/MikanLoaderPkg ./
+    ln -fs $HOME/workspace/mikanos/MikanLoaderPkg ./
     ```
   - edksetup.shを読み込む。
     - sourceコマンドでedksetup.shファイルを読み込むと、Conf/target.txtファイルが自動的に生成される。
