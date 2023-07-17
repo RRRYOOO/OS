@@ -13,6 +13,18 @@
 - Windowsに対応したXサーバの実装はいくつかあるが、VcXsrvが有力。
 - VcXsrvをのダウンロードは以下のサイトから。  
   　 https://sourceforge.net/projects/vcxsrv/
+## B.00 MikanOSの入手
+- MikanOSのソースコードは、以下のサイトから入手可能。  
+  　　https://github.com/uchan-nos/mikanos.git
+- $HOME/workspaceは以下にクローンを作成する。  
+```
+mkdir $HOME/workspace
+cd  $HOME/workspace
+git clone https://github.com/uchan-nos/mikanos.git
+```
+## 1.1 ハローワールド
+- 
+
 ```
   $ ld
 ```
