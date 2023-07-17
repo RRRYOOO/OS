@@ -22,10 +22,15 @@ mkdir $HOME/workspace
 cd  $HOME/workspace
 git clone https://github.com/uchan-nos/mikanos.git
 ```
+- MikanOSのソースコードには、各時点のバージョンにタグが付与されている。タグはosbook_dayXXの形式で名前付けされている。
+- タグの一覧を確認するコマンドは以下。（タグ一覧から抜ける場合はqを押す）
+```
+cd $HOME/workspace/mikanos
+git tag -l
+```
+- この中から希望する時点のソースコードを得ることができる。例えば、osbook_day26aの内容を得るためには次のコマンドを実行する。
+```
+git checkout osbook_day26a
+```
 ## 1.1 ハローワールド
 - 
-
-```
-  $ ld
-```
-
