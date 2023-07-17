@@ -52,7 +52,16 @@ git checkout osbook_day26a
      sudo cp BOOTX64.EFI mnt/EFI/BOOTBOOTX64.EFI
      sudo umount mnt
      ```
-     qemu-imgコマンドで200MBの空のファイルを作ってFAT形式でフォーマットし、そこにBOOTX64.EFIファイルを書き込むという流れ。  
-     最終的にBOOTX64.EFIを含んだdisk.imgというファイルが作成される。
-   - BOOTX64.EFIを含んだディスクイメージを作成する。
-       
+     qemu-imgコマンドで200MBの空のファイルを作ってFAT形式でフォーマットし、そこにBOOTX64.EFIファイルを書き込むという流れ。最終的にBOOTX64.EFIを含んだdisk.imgというファイルが作成される。
+   - 次にQEMUにそのディスクイメージを読み込ませて起動する。
+     ```
+     qemu-system-x86_64 \
+       -drive if=pflash,file=$HOME/osbook/devenv/OVMF_CODE.fd \
+       -drive if=pflash,file=$HOME/osbook/devenv/OVMF_VARS.fd \
+       -hda disk.img
+     ```
+- これらの長い処理をまとめて実行するスクリプト「run_qemu.sh」は、開発環境に同梱されている。以下のコマンドで実行可能。
+  ```
+  $HOME/osbook/devenv/run_qemu.sh BOOTX64.EFI
+  ```
+
