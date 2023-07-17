@@ -1,7 +1,7 @@
 # day01
 ## A.00 開発環境のインストール
-- MikanOSをビルドしたり、起動したりする開発環境の設定は以下のサイトを参照。　　　
-　　https://github.com/uchan-nos/mikanos-build
+- MikanOSをビルドしたり、起動したりする開発環境の設定は以下のサイトを参照。  
+  https://github.com/uchan-nos/mikanos-build
 ## A.01 WSLのインストール
 - WSL（Windows Subsystem for Linux）は、Windows上にLinux環境を構築するソフト。
 - WSLのインストール方法は以下を参照。  
