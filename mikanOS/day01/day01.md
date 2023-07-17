@@ -67,10 +67,10 @@ git checkout osbook_day26a
 - 実行結果は以下の通り。
     ![Image 1](HelloWorld.png)
 ## 1.7 UEFI BIOSによる起動
-- BOOTX64.EFTを所定の場所に保存してPC(またはエミュレータ)を起動すると、「Hello, world!」が表示された。これはBIOSがBOOTX64.EFIの中にある機械語を実行したからである。
+- BOOTX64.EFIを所定の場所に保存してPC(またはエミュレータ)を起動すると、「Hello, world!」が表示された。これはBIOSがBOOTX64.EFIの中にある機械語を実行したからである。
 - BIOS(Basic Input Output System)は、PCの電源を入れて最初に実行されるファームウェアと呼ばれるプログラムである。BIOSは、基本的な入出力機能、特にOS起動前にコンピュータ内部を初期化したり、OS(ブートローダ)をストレージから読み出す機能を提供する。
 - UEFI(Unified Extensible Firmware Interface)という標準仕様にしたがって作られたBIOSを「UEFI BIOS」と言う。
-- 起動後にBOOTX64.EFTが実行される流れは以下の通り。
+- 起動後にBOOTX64.EFIが実行される流れは以下の通り。
   - コンピュータの電源を入れるとCPUはBIOSの実行を開始する。
     - CPUがBIOSに格納された機械語プログラムを実行する。
   - BIOSは、パソコン本体や周辺機器を初期化する。
