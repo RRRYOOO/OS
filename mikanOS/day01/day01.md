@@ -33,7 +33,7 @@ git tag -l
 git checkout osbook_day26a
 ```
 ## 1.1 ハローワールド
-- バイナリで起動後に"Hallo, World!"が表示されるプログラムを作成する。
+- バイナリで起動後に"Hello, World!"が表示されるプログラムを作成する。
 - バイナリファイルを作成するには、バイナリエディタを使用する。WSL上のUbuntuで行う場合は、Windows用のバイナリエディタを使う。
 - Windows用のバイナリエディタはいくつかあるが、Binary Editor Bzが有力。
 - Binary Editor Bzでコードを作成し、BOOTX64.EFIの名前で保存する。  
