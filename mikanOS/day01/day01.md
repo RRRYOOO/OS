@@ -64,4 +64,6 @@ git checkout osbook_day26a
   ```
   $HOME/osbook/devenv/run_qemu.sh BOOTX64.EFI
   ```
+  ![Image 1](mikanOS/day01/HelloWorld.png)
+  
 
