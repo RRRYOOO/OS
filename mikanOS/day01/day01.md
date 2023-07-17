@@ -37,5 +37,22 @@ git checkout osbook_day26a
 - バイナリファイルを作成するには、バイナリエディタを使用する。WSL上のUbuntuで行う場合は、Windows用のバイナリエディタを使う。
 - Windows用のバイナリエディタはいくつかあるが、Binary Editor Bzが有力。
 - Binary Editor Bzでコードを作成し、BOOTX64.EFIの名前で保存する。  
-    https://github.com/RRRYOOO/OS/blob/main/mikanOS/day01/BOOTX64.efi
-  ## 1.1 ハローワールド
+　　https://github.com/RRRYOOO/OS/blob/main/mikanOS/day01/BOOTX64.efi
+## 1.4 エミュレータでのやり方
+-「QEMU」というエミュレータを使って表示する方法について記載する。
+- ここでは事前に「A.00 開発環境のインストール」「A.01 WSLのインストール」「A.02 WSLでQEMUを使う準備」を済ませておく必要がある。
+- QEMUでBOOTX64.EFIを起動するには2段階の処理が必要。
+   - BOOTX64.EFIを含んだディスクイメージを作成する。
+     ```
+     qemu-img create -f raw disk.img 200M
+     mkfs.fat -n 'MIKAN OS' -s 2 -f -R 32 -F 32 disk.img
+     mkdir -p mnt
+     sudo mount -o loop disk.img mnt
+     sudo mkdir -p mnt/EFI/BOOT
+     sudo cp BOOTX64.EFI mnt/EFI/BOOTBOOTX64.EFI
+     sudo umount mnt
+     ```
+     qemu-imgコマンドで200MBの空のファイルを作ってFAT形式でフォーマットし、そこにBOOTX64.EFIファイルを書き込むという流れ。  
+     最終的にBOOTX64.EFIを含んだdisk.imgというファイルが作成される。
+   - BOOTX64.EFIを含んだディスクイメージを作成する。
+       
