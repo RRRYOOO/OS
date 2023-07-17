@@ -8,7 +8,7 @@
 - WSLでQEMUを使うには、Windows側にXサーバをインストールしておく必要がある。
 - XサーバとはLinuxでGUIを扱う中心的な部品。LinuxでGUIを扱うには、伝統的にX Windows Systemという仕組みが使われる。この仕組みを使うと、GUIアプリが動くマシンとその画面を表示するマシンを別にすることができる。
 - Windowsに対応したXサーバの実装はいくつかあるが、VcXsrvが有力。
-- VcXsrvをのダウンロードは以下のサイトから。
+- VcXsrvをのダウンロードは以下のサイトから。  
   　 https://sourceforge.net/projects/vcxsrv/
 - 
   
