@@ -96,7 +96,7 @@ git checkout osbook_day26a
 ```
 cd $HOME/osbook/day01/c
 clang -target x86_64-pc-win32-coff \
-  -mno-red-zone -fno-stack-protector -fshort-wchar -wall -c hello.c
+  -mno-red-zone -fno-stack-protector -fshort-wchar -Wall -c hello.c
 lld-link /subsystem:efi_application /entry:EfiMain /out:hello.efi hello.o
 ```
   - clangは、Linux用のコンパイラである。このコンパイラは通常はELF形式ｃでファイルを出力するが、「x86_64-pc-win32-coff」を指定することでWindows向けのCOFF形式で出力可能。次に実行するlld-linkがCOFF形式を要求するため、このオプションを指定する必要がある。コンパイラが完了すると、hello.oというCOFF形式のファイルが生成される。
