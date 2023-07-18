@@ -99,7 +99,7 @@ EFI_STATUS EFIAPI UefiMain(
 - メモリマップの中の「NumberOfPages」列は、メモリ領域の大きさをページ単位で表した数値が入る。UEFIのメモリマップにおける1ページの大きさは4KiB（4*1024バイト）。
 - 実際のメモリマップには、歯抜けが存在しているため、PhysicalStartにNumberOfPages*4KiBを足しても次の行のPhysicalStartにはならない場合があることに注意する。  
   　　| PhysicalStart | Type | NumberOfPages |
-      ----|---- 
+      ----|---- |----  
       | 0x00000000 | EfiBootServicesCode | 0x1 |
       | 0x00001000 | EfiConventionalMemory | 0x9F |
       | 0x00100000 | EfiConventionalMemory | 0x700 |
