@@ -97,7 +97,7 @@ EFI_STATUS EFIAPI UefiMain(
 - メモリマップにおいて、アドレスは「PhysicalStart」列にある数値である。その値は、32ビットCPUで0から43億程度まである。
 - メモリマップの「Type」列にはその領域が何にあ使われているか（あるいは、使われていない空き領域か）を示している。
 - メモリマップの中の「NumberOfPages」列は、メモリ領域の大きさをページ単位で表した数値が入る。UEFIのメモリマップにおける1ページの大きさは4KiB（4*1024バイト）。
-- 実際のメモリマップには、歯抜けが存在しているため、PhysicalStartにNumberOfPages*4KiBを足しても次の行のPhysicalStartにはならない場合があることに注意する。
+- 実際のメモリマップには、歯抜けが存在しているため、PhysicalStartにNumberOfPages*4KiBを足しても次の行のPhysicalStartにはならない場合があることに注意する。  
   　　| PhysicalStart | Type | NumberOfPages |
       ----|---- 
       | 0x00000000 | EfiBootServicesCode | 0x1 |
