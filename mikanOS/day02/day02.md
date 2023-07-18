@@ -231,3 +231,17 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file)
    file->Write(file, &len, buf);
    ```
    - EFI_FILE_PROTOCOLが提供するWrite()を使って、ファイルに文字列を書き出す。
+## 2.7 メモリマップの確認
+- 実際にメモリマップを確認する。
+- MikanLoaderPkgをビルドする。
+  ```
+  cd $HOME/workspace/mikanos
+  git checkout osbook_day02b
+  cd $HOME/edk2
+  source edksetup.sh
+  build
+  ```
+- ビルドしてできたLoader.efiファイルをQEMU上で起動させる。
+  ```
+  $HOME/osbook/devenv/run_qemu.sh Build/MikanLoaderX64/DEBUG_CLANG38/X64/Loader.efi
+  ```
