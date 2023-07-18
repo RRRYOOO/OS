@@ -128,7 +128,7 @@ EFI_STATUS GetMemoryMap(struct MemoryMap* map)
 ```
 - UEFIは大きく分けて、OSを駆動するために必要な機能を提供するブートサービスと、OS起動前\起動後のどちらでも使える機能を提供するランタイムサービスから構成される。
 - メモリ管理関連の機能はブートサービスに含まれるので、ブートサービスを表すグローバル変数gBSを使用する。ランタイムサービスに含まれる機能を使用する場合はgRTというグローバル変数を使用する。
-#### <gBS-＞GetMemoryMap()>
+#### <gBS->GetMemoryMap()>
 ```
 EFI_STATUS GetMemoryMap(
   IN OUT UINTN *MemoryMapSize,
@@ -147,4 +147,71 @@ EFI_STATUS GetMemoryMap(
 - MemoryMapで指し示されるメモリ領域に書き込まれるデータの構造は、EFI_MEMORY_DESCRIPTOR構造体の配列となっている。メモリマップ全体の大きさはMemoryMapSizeバイトで、要素はDescriptorSizeバイト間隔で配置される。
 - EFI_MEMORY_DESCRIPTOR構造体の定義を以下の表に示す。この定義はEDK2のMdePkg/Include/Uefi/Uefispec.hというヘッダファイルの中に、UEFIの規定所に沿って書かれた構造体定義がある。
   ![Image 1](MemoryMapStructure.png)
+#### <メモリマップ構造体（Main.c）>
+```
+struct MemoryMap
+{
+  UINTN buffer_size;
+  VOID* buffer;
+  UINTN map_size;
+  UINTN map_key;
+  UINTN descriptor_size;
+  UINT32 descriptor_version; 
+}
+```
+- サンプルプログラムではMemoryMapという構造体を独自に定義し、メモリディスクリプタを書き込むためのバッファ全体のサイズやgBS->GetMemoryMap()で取得したディスクリプタサイズなどを記録できるようになっている。
+## 2.6 メモリマップのファイルへの保存
+#### <メイン関数の更新部分（Main.c）>
+```
+CHAR8  memmap_buf[4096 * 4];
+struct MemoryMap memmap = {sizeof(memmap_buf), memmap_buf, 0, 0, 0, 0};
+GetMemoryMap(&memmap);
 
+EFI_FILE_PROTOCOL* root_dir;
+OpenRootDir(image_handle, &root_dir);
+
+EFI_FILE_PROTOCOL* memmap_file;
+root_dir->Open(
+    root_dir, &memmap_file, L"\\memmap",
+    EFI_FILE_MODE_READ | EFI_FILE_MODE_WRITE | EFI_FILE_MODE_CREATE, 0);
+
+SaveMemoryMap(&memmap, memmap_file);
+memmap_file->Close(memmap_file);
+```
+- このプログラムに出てくるOpenRootDir()やroot_dir->Open()の関数は、簡単に言えば書き込み先のファイルを開く関数である。この関数を実行すると、ファイルが書き込みモードで開かれる。（存在しなければ新規作成される。）開いたファイルをSaveMemoryMap()に渡し、そこへ先ほど取得したメモリマップを保存する。
+- メモリマップはかなり大きくなることがある。16KiB(4096 * 4)で足りないことがあれば、もっと余裕のある大きさに増やしてみる等の修正を行うこと。
+#### <SaveMemoryMap()（Main.c）>
+```
+EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file)
+{
+  CHAR8 buf[256];
+  UINTN len;
+
+  CHAR8* header =
+      "Index, Type, Type(name), PhysicalStart, NumberOfPages, Attribute\n";
+  len = AsciiStrLen(header);
+  file->Write(file, &len, header);
+
+  Print(L"map->buffer = %08lx, map->size = %08lx\n",
+      map->buffer, map->map_size);
+
+  EFI_PHYSICAL_ADDRESS iter;
+  int i;
+  for (iter = (EFI_PHYSICAL_ADDRESS)map->buffer, i = 0;
+       iter < (EFI_PHYSICAL_ADDRESS)map->buffer + map->map_size;
+       iter += map->descriptor_size, i++)
+  {
+    EFI_MEMORY_DESCRIPTOR* desc = (EFI_MEMORY_DESCROPTOR*)iter;
+    len = AsciiSPrint(
+        buf, sizeof(buf),
+        "%u, %x, %-ls, %08lx, %lx, %lx\n",
+        i, desc->Type, GetMemoryTypeUnicode(desc->Type),
+        desc->PhysicalStart, desc->NumberOfPages,
+        desc->Attribute & 0xffffflu);
+    file->Write(file, &len, buf);
+  }
+
+  return EFI_SUCCESS;  
+}
+```
+```
