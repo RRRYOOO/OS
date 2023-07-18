@@ -107,3 +107,43 @@ EFI_STATUS EFIAPI UefiMain(
 | 0x00800000    | EfiACPIMemoryNVS      | 0x8           |
 | ・・・        | ・・・                 | ・・・        |
 ## 2.5 メモリマップの取得（osbook_day02b）
+- UEFIの機能を使ってメモリマップを取得するプログラムは$HOME/workspace/mikanos/MikanLoaderPkg/Main.c(osbook_day02b)にある。
+#### <Main.c>
+```
+EFI_STATUS GetMemoryMap(struct MemoryMap* map)
+{
+  if (map->buffer == NULL)
+  {
+    return EFI_BUFFER_TOO_SMALL;
+  }
+  
+  map->map_size = map->map->buffer_size;
+  return gBS->GetMemoryMap(
+      &map->map_size,
+      (EFI_MEMORY_DESCRIPTOR*)map->buffer,
+      &map->map_key,
+      &map->descriptor_size,
+      &map->descriptor_version);
+}
+```
+- UEFIは大きく分けて、OSを駆動するために必要な機能を提供するブートサービスと、OS起動前\起動後のどちらでも使える機能を提供するランタイムサービスから構成される。
+- メモリ管理関連の機能はブートサービスに含まれるので、ブートサービスを表すグローバル変数gBSを使用する。ランタイムサービスに含まれる機能を使用する場合はgRTというグローバル変数を使用する。
+#### <gBS-＞GetMemoryMap()>
+```
+EFI_STATUS GetMemoryMap(
+  IN OUT UINTN *MemoryMapSize,
+  IN OUT EFI_MEMORY_DESCRIPTOR *MemoryMap,
+  OUT UINTN *MapKey,
+  OUT UINTN  *DescriptorSize,
+  OUT UINT32  *DescriptorVersion);
+```
+- IN、OUTはそれぞれ関数への入力用、関数からの出力用であることを意味する。（IN、OUTはコンパイル時に空文字列に置き換えられるため、コンパイル結果には影響しない。）
+- gBS-＞GetMemoryMap()は、関数呼び出し時点のメモリマップを取得し、引数MemoryMapで指定されたメモリ領域に書き込む。正常にメモリマップが取得できるとEFI_SUCCESSを返す。
+- 1番目の引数のMemoryMapSizeは、入力としてはメモリマップ書き込み用のメモリ領域の大きさを設定する。出力としては実際のメモリマップの大きさが設定される。
+- 2番目の引数のMemoryMapは、メモリマップ書き込み用のメモリ領域の先頭ポインタを設定する。
+- 3番目の引数のMapKeyは、メモリマップを識別するための値を書き込む変数を指定する。この値は後でgBS->ExitBootServices()を呼び出すときに必要になる。
+- 4番目の引数のDescriptorSizeは、メモリマップの個々の行を表すメモリディスクリプタのバイト数を表す。
+- 5番目の引数のDescriptorVersionは、メモリディスクリプタの構造体のバージョン番号を表す。
+- MemoryMapで指し示されるメモリ領域に書き込まれるデータの構造は、EFI_MEMORY_DESCRIPTOR構造体の配列となっている。メモリマップ全体の大きさはMemoryMapSizeバイトで、要素はDescriptorSizeバイト間隔で配置される。
+  ![Image 1](MemoryMapStructure.png)
+
