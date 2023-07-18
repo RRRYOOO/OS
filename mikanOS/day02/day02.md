@@ -214,4 +214,20 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file)
   return EFI_SUCCESS;  
 }
 ```
-```
+- SaveMemoryMap()は、引数で与えられたメモリマップ情報をCSV形式でファイルに書き出す。処理の前半にあるfile->Write()によってヘッダー行を出力する。
+- for文の繰り返し処理に関する変数はiとiterである。iはメモリマップの行番号を表すカウンタで、iterはメモリマップの各要素（メモリディスクリプタ）のアドレスを表す。iterの初期値はメモリマップの先頭、すなわちメモリディスクリプタを指していて、更新式によって隣接するメモリディスクリプタを指すようになる。
+   ```
+   len = AsciiSPrint(
+       buf, sizeof(buf),
+       "%u, %x, %-ls, %08lx, %lx, %lx\n",
+       i, desc->Type, GetMemoryTypeUnicode(desc->Type),
+       desc->PhysicalStart, desc->NumberOfPages,
+       desc-<Attribute & 0xffffflu);
+   ```
+   - キャストしたdescを利用して、メモリディスクリプタの値を文字列に変換数する。
+   - AsciiSPrint()はEDK2に用意されているライブラリ関数で、指定したchar配列に成形した文字列を書き込んでくれる。
+   - GetMemoryTypeUnicode()は、Main.cに定義している関数で、メモリディスクリプタのタイプ値からタイプ名を取得して返す。
+   ```
+   file->Write(file, &len, buf);
+   ```
+   - EFI_FILE_PROTOCOLが提供するWrite()を使って、ファイルに文字列を書き出す。
