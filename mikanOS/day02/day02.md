@@ -241,7 +241,27 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file)
   source edksetup.sh
   build
   ```
-- ビルドしてできたLoader.efiファイルをQEMU上で起動させる。
+- $HOME/esk2/Build/MikanLoaderX64/DEBUG_CLANG38/X64/にビルドしてできたLoader.efiファイルをBOOTX64.EFIにリネイムしてQEMU上で起動させる。
   ```
-  $HOME/osbook/devenv/run_qemu.sh Build/MikanLoaderX64/DEBUG_CLANG38/X64/Loader.efi
+  $HOME/osbook/devenv/run_qemu.sh BOOTX64.EFI
+  ```
+- 実行結果は以下の通り。
+  ![Image 1](CheckMemoryMap.png)  
+- run_qemu.shスクリプトを使ってQEMUを起動させると、カレントディレクトリにdisk.imgというファイルが作られる。これはｍディスクイメージと呼ばれるファイルで、マウントすることで中身を見ることができる。
+- マウントとは、Linuxの基本操作の1つで、ファイルシステムを開いて使えるようにする操作である。USBメモリやネットワークドライブなど、外部記憶装置をLinuxで使うときにする操作であるが、今回のようにディスクイメージを開いて読み書きをするような用途にも使える。
+  ```
+  mkdir -p mnt
+  sudo mount -o loop disk.img mnt
+  ls mnt
+  ```
+- ls mntするとディスクイメージの中身が表示されるはずである。EFIディレクトリの他にmemmapというファイルがあるはずだが、これはBOOTX64.EFIによりファイルに保存されたメモリマップファイルである。
+- catコマンドで中身を確認すると、memmapがCSV形式で表示される。
+  ```
+  cat mnt/memmap
+  ```
+- 実行結果は以下の通り。
+  ![Image 1](CatMemoryMap.png)  
+- 一通り確認が終わったら、ディスクイメージをアンマウントしておく。
+  ```
+  sudo umount mnt
   ```
