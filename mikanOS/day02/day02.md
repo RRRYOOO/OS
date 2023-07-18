@@ -145,5 +145,6 @@ EFI_STATUS GetMemoryMap(
 - 4番目の引数のDescriptorSizeは、メモリマップの個々の行を表すメモリディスクリプタのバイト数を表す。
 - 5番目の引数のDescriptorVersionは、メモリディスクリプタの構造体のバージョン番号を表す。
 - MemoryMapで指し示されるメモリ領域に書き込まれるデータの構造は、EFI_MEMORY_DESCRIPTOR構造体の配列となっている。メモリマップ全体の大きさはMemoryMapSizeバイトで、要素はDescriptorSizeバイト間隔で配置される。
+- EFI_MEMORY_DESCRIPTOR構造体の定義を以下の表に示す。この定義はEDK2のMdePkg/Include/Uefi/Uefispec.hというヘッダファイルの中に、UEFIの規定所に沿って書かれた構造体定義がある。
   ![Image 1](MemoryMapStructure.png)
 
