@@ -17,7 +17,7 @@ edk2/
 - MdePkgは、他のプログラムからよく利用される基本ライブラリである。
 - AppPkgは、UEFIアプリケーションをいくつか含んでいる。
 - OvmfPkgじゃUEFI BIOSのオープンソース実装であるOVMFが収められている。
-## 2.2 EDK2でハローワールド（osbook_day02q）
+## 2.2 EDK2でハローワールド（osbook_day02a）
 - 第1章で作成したC言語のハローワールドをEDK2ライブラリを使って書き直してみる。
 - 今後、USBメモリからメインメモリにOSを読みこむのに使うブートローダに進化させるため、「MikanLoader」という名前でアプリケーションを作成していく。
 - ソースコードはMikanOSのリポジトリのosbook_day02aタグである。ファイルの構成は以下。
@@ -92,3 +92,17 @@ EFI_STATUS EFIAPI UefiMain(
       ```
   - 実行結果は以下の通り。
     ![Image 1](HelloMikanWorld.png)
+## 2.4 メモリマップ
+- メモリマップは、メインメモリのどの部分がどんな用途で使われているかが記載されている。
+- メモリマップにおいて、アドレスは「PhysicalStart」列にある数値である。その値は、32ビットCPUで0から43億程度まである。
+- メモリマップの「Type」列にはその領域が何にあ使われているか（あるいは、使われていない空き領域か）を示している。
+- メモリマップの中の「NumberOfPages」列は、メモリ領域の大きさをページ単位で表した数値が入る。UEFIのメモリマップにおける1ページの大きさは4KiB（4*1024バイト）。
+- 実際のメモリマップには、歯抜けが存在しているため、PhysicalStartにNumberOfPages*4KiBを足しても次の行のPhysicalStartにはならない場合があることに注意する。
+  　　| PhysicalStart | Type | NumberOfPages |
+      ----|---- 
+      | 0x00000000 | EfiBootServicesCode | 0x1 |
+      | 0x00001000 | EfiConventionalMemory | 0x9F |
+      | 0x00100000 | EfiConventionalMemory | 0x700 |
+      | 0x00800000 | EfiACPIMemoryNVS | 0x8 |
+      | ・・・ | ・・・ | ・・・ |
+## 2.5 メモリマップの取得（osbook_day02b）
