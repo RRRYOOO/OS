@@ -98,18 +98,12 @@ EFI_STATUS EFIAPI UefiMain(
 - メモリマップの「Type」列にはその領域が何にあ使われているか（あるいは、使われていない空き領域か）を示している。
 - メモリマップの中の「NumberOfPages」列は、メモリ領域の大きさをページ単位で表した数値が入る。UEFIのメモリマップにおける1ページの大きさは4KiB（4*1024バイト）。
 - 実際のメモリマップには、歯抜けが存在しているため、PhysicalStartにNumberOfPages*4KiBを足しても次の行のPhysicalStartにはならない場合があることに注意する。
-      | 設定項目 | 設定値 |
-      ----|---- 
-      | ACTIVE_PLATFORM | MikanLoaderPkg/MikanLoaderPkg.dsc |
-      | TARGET | DEBUG |
-      | TARGET_ARCH | X64 |
-      | TOOL_CHAIN_TAG | CLANG38 |
   
-  　　| PhysicalStart | Type | NumberOfPages |
-      ----|---- |----  
-      | 0x00000000 | EfiBootServicesCode | 0x1 |
-      | 0x00001000 | EfiConventionalMemory | 0x9F |
-      | 0x00100000 | EfiConventionalMemory | 0x700 |
-      | 0x00800000 | EfiACPIMemoryNVS | 0x8 |
-      | ・・・ | ・・・ | ・・・ |
+| PhysicalStart | Type                  | NumberOfPages | 
+| ------------- | --------------------- | ------------- | 
+| 0x00000000    | EfiBootServicesCode   | 0x1           | 
+| 0x00001000    | EfiConventionalMemory | 0x9F          | 
+| 0x00100000    | EfiConventionalMemory | 0x700         |
+| 0x00800000    | EfiACPIMemoryNVS      | 0x8           |
+| ・・・        | ・・・                 | ・・・        |
 ## 2.5 メモリマップの取得（osbook_day02b）
