@@ -103,7 +103,7 @@ EFI_STATUS EFIAPI UefiMain(
       | ACTIVE_PLATFORM | MikanLoaderPkg/MikanLoaderPkg.dsc |
       | TARGET | DEBUG |
       | TARGET_ARCH | X64 |
-      | TOOL_CHAIN_TAG | CLANG38 |  
+      | TOOL_CHAIN_TAG | CLANG38 |
   
   　　| PhysicalStart | Type | NumberOfPages |
       ----|---- |----  
