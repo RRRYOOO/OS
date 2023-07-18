@@ -85,7 +85,7 @@ git checkout osbook_day26a
 - プログラムの本体となる箇所はEfiMain()関数になる。  
   #### <hello.c>
   ```
-  EFI_STATUS EfiMain(EFI_HANDLE        ImageHandle,
+  EFI_STATUS EfiMain(EFI_HANDLE ImageHandle,
                    EFI_SYSTEM_TABLE  *SystemTable) {
     SystemTable->ConOut->OutputString(SystemTable->ConOut, L"Hello, world!\n");
     while (1);
