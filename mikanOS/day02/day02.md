@@ -72,7 +72,7 @@ EFI_STATUS EFIAPI UefiMain(
     source edksetup.sh
     ```
   - 生成されたConf/target.txtを編集する。
-    - Conf/target.txtでMikanLoaderPkgをビルド対象として指定する。以下の表のように設定する。
+    - Conf/target.txtでMikanLoaderPkgをビルド対象として指定する。以下の表のように設定する。  
       | 設定項目 | 設定値 |
       ----|---- 
       | ACTIVE_PLATFORM | MikanLoaderPkg/MikanLoaderPkg.dsc |
