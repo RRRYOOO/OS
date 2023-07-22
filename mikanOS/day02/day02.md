@@ -128,7 +128,7 @@ EFI_STATUS GetMemoryMap(struct MemoryMap* map)
 ```
 - UEFIは大きく分けて、OSを駆動するために必要な機能を提供するブートサービスと、OS起動前\起動後のどちらでも使える機能を提供するランタイムサービスから構成される。
 - メモリ管理関連の機能はブートサービスに含まれるので、ブートサービスを表すグローバル変数gBSを使用する。ランタイムサービスに含まれる機能を使用する場合はgRTというグローバル変数を使用する。
-#### <gBS->GetMemoryMap()>
+#### < gBS->GetMemoryMap()>
 ```
 EFI_STATUS GetMemoryMap(
   IN OUT UINTN *MemoryMapSize,
