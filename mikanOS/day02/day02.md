@@ -265,3 +265,123 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file)
   ```
   sudo umount mnt
   ```
+## C.00 EDK2のファイル説明
+- EDK2を使って開発を行う際に、ソースコード以外で最低限必要なファイルは以下の3点である。　　
+    1. パッケージ宣言ファイル（.dec）
+    1. パッケージ記述ファイル（.dsc）
+    1. モジュール情報ファイル（.inf）
+### C.00-1 パッケージ宣言ファイル
+#### < MikanLoaderPkg.dec >
+```
+[Defines]
+DEC_SPECIFICATION              = 0x00010005
+PACKAGE_NAME                   = MikanLoaderPkg
+PACKAGE_GUID                   = 452eae8e-71e9-11e8-a243-df3f1ffdebe1
+PACKAGE_VERSION                = 0.1f
+```
+  - パッケージ宣言ファイルファイルの主な役割は、パッケージの名前を決めることである。PACKAGE_NAMEさえ正しい値にすれば良い。
+  - その他の設定は、とりあえず上記の値を設定しておけば大丈夫。
+### C.00-2 パッケージ記述ファイル
+#### < MikanLoaderPkg.dsc >
+```
+#@range_begin(defines)
+[Defines]
+  PLATFORM_NAME                  = MikanLoaderPkg
+  PLATFORM_GUID                  = d3f11f4e-71e9-11e8-a7e1-33fd4f7d5a3e
+  PLATFORM_VERSION               = 0.1
+  DSC_SPECIFICATION              = 0x00010005
+  OUTPUT_DIRECTORY               = Build/MikanLoader$(ARCH)
+  SUPPORTED_ARCHITECTURES        = X64
+  BUILD_TARGETS                  = DEBUG|RELEASE|NOOPT
+#@range_end(defines)
+
+#@range_begin(library_classes)
+[LibraryClasses]
+  UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
+  UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
+#@range_end(library_classes)
+
+  BaseLib|MdePkg/Library/BaseLib/BaseLib.inf
+  BaseMemoryLib|MdePkg/Library/BaseMemoryLib/BaseMemoryLib.inf
+  DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
+  DevicePathLib|MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf
+  MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
+  PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
+  PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
+  UefiBootServicesTableLib|MdePkg/Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf
+  UefiRuntimeServicesTableLib|MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf
+
+#@range_begin(components)
+[Components]
+  MikanLoaderPkg/Loader.inf
+#@range_end(components)
+```
+##### < MikanLoaderPkg.dscのDefineセクション >
+```
+[Defines]
+  PLATFORM_NAME                  = MikanLoaderPkg
+  PLATFORM_GUID                  = d3f11f4e-71e9-11e8-a7e1-33fd4f7d5a3e
+  PLATFORM_VERSION               = 0.1
+  DSC_SPECIFICATION              = 0x00010005
+  OUTPUT_DIRECTORY               = Build/MikanLoader$(ARCH)
+  SUPPORTED_ARCHITECTURES        = X64
+  BUILD_TARGETS                  = DEBUG|RELEASE|NOOPT
+```
+  - パッケージ記述ファイルのDefineセクションの中で重要なのは、SUPPORTED_ARCHITECTURESとOUTPUT_DIRECTORYである。
+  - SUPPORTED_ARCHITECTURESは、URFIアプリケーションが対象とするアーキテクチャを指定する。今回は、Intel64向けのOSを作成するので、ここにX64を指定する。
+    （ほかには、IA32やARMなどを指定できる）
+  - OUTPUT_DIRECTORYには、ビルドしたファイル（.efiファイル）が出力されるディレクトリを指定する。(ARCH)の部分は変数になっていて、実際にビルドされたアーキテクチャの名前が入る。
+    （Intel64向けにビルドして場合は、ARCHにX64が入る）
+##### < MikanLoaderPkg.dscのLibraryClassesセクション(※一部) >
+  ```
+[LibraryClasses]
+  UefiApplicationEntryPoint|MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf
+  UefiLib|MdePkg/Library/UefiLib/UefiLib.inf
+```
+  - LibraryClassesセクションでは、UEFIアプリケーションを作成するのに必要となるライブラリの名前と実際のファイルの対応を設定する。 
+    以下の形式でライブラリ名と実際のファイルの紐づけを定義する。
+      ```
+      ライブラリ名|ライブラリのモジュール情報ファイルへのパス
+      ```
+  - 引用したMikanLoaderPkg.dscの例では、UefiApplicationEntryPointとUefiLibの2つのライブラリを定義している。
+##### < MikanLoaderPkg.dscのComponentsセクション(※一部) >
+```
+[Components]
+  MikanLoaderPkg/Loader.inf
+```
+  - Componentsセクションでは、パッケージを構成するコンポーネントを指定する。パッケージをビルドする際、ここにしていたコンポーネントがビルド対象となる。
+### モジュール情報ファイル
+#### < Loader.inf >
+```
+[Defines]
+  INF_VERSION                    = 0x00010006
+  BASE_NAME                      = Loader
+  FILE_GUID                      = c9d0d202-71e9-11e8-9e52-cfbfd0063fbf
+  MODULE_TYPE                    = UEFI_APPLICATION
+  VERSION_STRING                 = 0.1
+  ENTRY_POINT                    = UefiMain
+
+#  VALID_ARCHITECTURES           = X64
+
+[Sources]
+  Main.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+
+[LibraryClasses]
+  UefiLib
+  UefiApplicationEntryPoint
+
+[Guids]
+
+[Protocols]
+```
+- 1つのパッケージは複数のモジュールを持つことができる。パッケージ記述ファイル(.dsc)はパッケージ毎に1つ、モジュール情報ファイル(.inf)はモジュール毎に1つ作成する。
+- Defineセクションで重要なのは、BASE_NAMEとENTRY_POINTである。  
+  BASE_NAMEには、コンポーネントの名前を記載する。  
+  ENTRY_POINTには、このUEFIアプリケーションのエントリポイント名を記載する。（エントリポイントとは、起動時に最初に実行される関数のことである。）
+- モジュール情報ファイルの仕様書は、「EDK2 Module Information(IFN) File Specification」である。
+- Sourcesセクションでは、このUEFIアプリケーションを構成するソースコードを1行に1ファイルで列挙する。
+- Packageセクションは、モジュールをビルドするのに必要なパッケージを羅列すれば良い。（たぶん）
+- LibraryClassesセクションでは、URFIアプリケーションが依存するライブラリを指定する。ここで指定するライブラリ名は、パッケージ記述ファイルのLibraryClassesセクションで定義したライブラリ名である。
