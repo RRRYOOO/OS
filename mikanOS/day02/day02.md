@@ -389,4 +389,21 @@ PACKAGE_VERSION                = 0.1f
 - EFIのプロトコル/ハンドラについては以下を参考。
   - https://qiita.com/AKpirion/items/be3d4e6c8ead22b64bee
   - https://qiita.com/AKpirion/items/c73ab782396fca6f8d85
-  - https://qiita.com/tnishinaga/items/40755f414557faf45dcb  
+  - https://qiita.com/tnishinaga/items/40755f414557faf45dcb
+- Gitの操作方法は以下。
+  - 変更したファイルをコミット候補に追加する。
+    ```
+    git add "コミット候補のファイル名"
+    ```  
+  - コミット候補のファイルをコミットする。
+    ```
+    git commit -m "コメント"
+    ```
+  - コミットしたファイルをプッシュする。
+    ```
+    git push origin my-changes
+    ```
+  - タグをつける。
+    ```
+    git tag "タグ名"
+    ```
