@@ -385,3 +385,8 @@ PACKAGE_VERSION                = 0.1f
 - Sourcesセクションでは、このUEFIアプリケーションを構成するソースコードを1行に1ファイルで列挙する。
 - Packageセクションは、モジュールをビルドするのに必要なパッケージを羅列すれば良い。（たぶん）
 - LibraryClassesセクションでは、URFIアプリケーションが依存するライブラリを指定する。ここで指定するライブラリ名は、パッケージ記述ファイルのLibraryClassesセクションで定義したライブラリ名である。
+## その他
+- EFIのプロトコル/ハンドラについては以下を参考。
+  - https://qiita.com/AKpirion/items/be3d4e6c8ead22b64bee
+  - https://qiita.com/AKpirion/items/c73ab782396fca6f8d85
+  - https://qiita.com/tnishinaga/items/40755f414557faf45dcb  
