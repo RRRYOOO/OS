@@ -241,9 +241,9 @@ EFI_STATUS SaveMemoryMap(struct MemoryMap* map, EFI_FILE_PROTOCOL* file)
   source edksetup.sh
   build
   ```
-- $HOME/esk2/Build/MikanLoaderX64/DEBUG_CLANG38/X64/にビルドしてできたLoader.efiファイルをBOOTX64.EFIにリネイムしてQEMU上で起動させる。
+- $HOME/esk2/Build/MikanLoaderX64/DEBUG_CLANG38/X64/にビルドしてできたLoader.efiをQEMU上で起動させる。
   ```
-  $HOME/osbook/devenv/run_qemu.sh BOOTX64.EFI
+  $HOME/osbook/devenv/run_qemu.sh Loader.efi
   ```
 - 実行結果は以下の通り。
   ![Image 1](CheckMemoryMap.png)  
