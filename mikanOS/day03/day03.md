@@ -150,3 +150,11 @@
   kernel_file->Read(kernel_file, &kernel_file_size, (VOID*)kernel_base_addr);
   Print(L"Kernel: 0x%0lx (%lu bytes)\n", kernel_base_addr, kernel_file_size);
   ```
+
+
+## その他
+### edk2でbuildが実行できなくなった場合
+- edk2でbuildが実行できなくなった場合は、一度以下のコマンド実行してからbuildする。
+  ```
+  source edksetup.sh
+  ```
