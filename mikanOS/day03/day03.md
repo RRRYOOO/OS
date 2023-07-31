@@ -95,7 +95,7 @@
 - このソースコードからカーネルファイルを作るには以下のようにコンパイルとリンクを行う。
   ```
   cd $HOME/workspace/mikanos
-  git checkout osbook_day03
+  git checkout osbook_day03a
   cd kernel
   clang++ -02 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions -fno-rtti -std=c++17 -c main.cpp
   ld.lld --entry KernelMain -z norelro --image-base 0x100000 --static -o kernel.elf main.o
