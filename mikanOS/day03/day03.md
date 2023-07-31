@@ -97,14 +97,14 @@
   cd $HOME/workspace/mikanos
   git checkout osbook_day03a
   cd kernel
-  clang++ -02 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions -fno-rtti -std=c++17 -c main.cpp
+  clang++ -O2 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone -fno-exceptions -fno-rtti -std=c++17 -c main.cpp
   ld.lld --entry KernelMain -z norelro --image-base 0x100000 --static -o kernel.elf main.o
   ```
   - 1行目では、clang++コマンドでソースコードをコンパイルし、オブジェクトファイルを作る。
   - コンパイラに指定したオプションの意味は以下の通り。
     | オプション | 意味 | 
     | ------------- | -------- | 
-    | -02 | レベル2の最適化を行う。 |
+    | -O2 | レベル2の最適化を行う。 |
     | -Wall | 警告をたくさん出す。 |
     | -g | デバッグ情報付きでコンパイルする。 |
     | --target=x86_64-elf | x86_64向けの機械語を生成する。出力ファイル形式はELFとする。 |
