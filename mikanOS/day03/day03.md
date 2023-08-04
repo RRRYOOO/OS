@@ -158,3 +158,55 @@
   ```
   source edksetup.sh
   ```
+### edk2でbuildで実行ファイルが生成されない場合
+- EDK2付属のbuildコマンドでビルドを試みても、$HOME/edk2/Build/MikanLoaderX64/DEBUG_CLANG38/X64/Loader.efiが生成されないトラブルが発生した。buildコマンド実行後のターミナルの表示は以下のようになっていた。
+  ```
+  $ build
+  Build environment: Linux-5.11.0-34-generic-x86_64-with-glibc2.29
+  Build start time: 16:07:18, Sep.13 2021
+  
+  WORKSPACE        = /home/mikan/edk2
+  EDK_TOOLS_PATH   = /home/mikan/edk2/BaseTools
+  CONF_PATH        = /home/mikan/edk2/Conf
+  PYTHON_COMMAND   = /usr/bin/python3.8
+  
+  
+  Architecture(s)  = X64
+  Build target     = DEBUG
+  Toolchain        = CLANG38
+  
+  Active Platform          = /home/mikan/edk2/MikanLoaderPkg/MikanLoaderPkg.dsc
+  
+  Processing meta-data . done!
+  Building ... /home/mikan/edk2/MdePkg/Library/UefiApplicationEntryPoint/UefiApplicationEntryPoint.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/UefiLib/UefiLib.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/UefiDevicePathLib/UefiDevicePathLib.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/UefiRuntimeServicesTableLib/UefiRuntimeServicesTableLib.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/BasePrintLib/BasePrintLib.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/UefiBootServicesTableLib/UefiBootServicesTableLib.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/BaseLib/BaseLib.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MdePkg/Library/BaseMemoryLib/BaseMemoryLib.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  Building ... /home/mikan/edk2/MikanLoaderPkg/Loader.inf [X64]
+  make: Nothing to be done for 'tbuild'.
+  
+  - Done -
+  Build end time: 16:07:20, Sep.13 2021
+  Build total time: 00:00:01
+  ```
+- 前回ビルドを実施したコードから変更がない場合、上記のようにビルドが実施されない模様。
+- コードを一部変更して再ビルドを実施すると正常にビルドが完了した。
+
