@@ -150,50 +150,77 @@
   kernel_file->Read(kernel_file, &kernel_file_size, (VOID*)kernel_base_addr);
   Print(L"Kernel: 0x%0lx (%lu bytes)\n", kernel_base_addr, kernel_file_size);
   ```
-- カーネルファイルを読み込む処理は、メモリマップを書き込むファイルを開くのと同様である。
-- カーネルファイル全体を読み込むためのメモリを確保する。ファイルのサイズを知る必要があるので、kernel_file->GetInfo()を使ってカーネルファイルのファイル情報を取得する。
-- この関数の第4引数にはEFI_INFO型を十分確保できる大きさのメモリ領域を指定する必要がある。ここでは、EFI_INFO型の構造体のサイズに加えてファイル名の文字数+NULL文字のサイズを足しこんだサイズを渡す必要がある。ファイル情報の構造体は以下である。
-  ```
-  typedef {
-    UINTN  Size, FileSize, PhysicalSize;
-    EFI_TIME  CreateTime, LastAccessTime, ModificationTime;
-    UINT64  Attribute;
-    CHAR16  FileName[];
-  }  EFI_FILE_INFO
-  ```
-  ![Image 1](EFI_FILE_INFO.png)
-- kernel-file->GetInfo()が完了すると、file_info_bufferにはEFI_FILE_INFO型のデータが書かれた状態になる。file_info_bufferをEFI_FILE_INFO型にキャストすると、構造体の各メンバを取得できるようになり、カーネルファイルのサイズが取得できる。
-- カーネルファイルのサイズがわかったら、gBS->AllocatePages()を使ってファイルを格納できる十分なサイズのメモリ領域を確保する。この関数は、第1引数にメモリの確保の仕方、第2引数に確保するメモリ領域の種別、第3引数に大きさ、第4引数には確保したメモリ領域の先頭アドレスを書き込む変数を指定する。
-- 第1引数にメモリの確保の仕方は、以下の3通りから指定する。
+  - カーネルファイルを読み込む処理は、メモリマップを書き込むファイルを開くのと同様である。
+  - カーネルファイル全体を読み込むためのメモリを確保する。ファイルのサイズを知る必要があるので、kernel_file->GetInfo()を使ってカーネルファイルのファイル情報を取得する。
+  - この関数の第4引数にはEFI_INFO型を十分確保できる大きさのメモリ領域を指定する必要がある。ここでは、EFI_INFO型の構造体のサイズに加えてファイル名の文字数+NULL文字のサイズを足しこんだサイズを渡す必要がある。ファイル情報の構造体は以下である。
+    ```
+    typedef {
+      UINTN  Size, FileSize, PhysicalSize;
+      EFI_TIME  CreateTime, LastAccessTime, ModificationTime;
+      UINT64  Attribute;
+      CHAR16  FileName[];
+    }  EFI_FILE_INFO
+    ```
+    ![Image 1](EFI_FILE_INFO.png)
+  - kernel-file->GetInfo()が完了すると、file_info_bufferにはEFI_FILE_INFO型のデータが書かれた状態になる。file_info_bufferをEFI_FILE_INFO型にキャストすると、構造体の各メンバを取得できるようになり、カーネルファイルのサイズが取得できる。
+  - カーネルファイルのサイズがわかったら、gBS->AllocatePages()を使ってファイルを格納できる十分なサイズのメモリ領域を確保する。この関数は、第1引数にメモリの確保の仕方、第2引数に確保するメモリ領域の種別、第3引数に大きさ、第4引数には確保したメモリ領域の先頭アドレスを書き込む変数を指定する。
+  - 第1引数にメモリの確保の仕方は、以下の3通りから指定する。
     | メモリの確保の仕方 | 意味 | 
     | ------------- | -------- | 
     | AllocateAnyPages | どこでもいいから空いている場所に確保する |
     | AllocateMaxAddress | 指定したアドレス以下で空いている場所に確保する |
     | AllocateAddress | 指定したアドレスに確保する。 |
-- 今回のカーネルファイルは0x100000番地に配置して動作させる前提で作られているので、AllocateAddressを指定する。（ld.lldのオプションの--image-baseで指定している）
-- 第2引数に確保するメモリ領域の種別は、ブートローダが使う領域の場合は普通EfiLoaderDataを指定する。
-- 第3引数に大きさは、gBS->AllocatePages()に渡すメモリ領域の大きさをページ単位で指定する。UEFIにおける1ページの大きさは4KiB(=0x1000バイト)なので0x1000で割る必要がある。また、0x1000できれいに割り切れない場合、端数が切り捨てられてしまい、確保するメモリが端数分だけ足りなくなってしまうので、0x1000で割る前に0xfffを足しこんでおき、端数部分が切り捨てられないようにする。
+  - 今回のカーネルファイルは0x100000番地に配置して動作させる前提で作られているので、AllocateAddressを指定する。（ld.lldのオプションの--image-baseで指定している）
+  - 第2引数に確保するメモリ領域の種別は、ブートローダが使う領域の場合は普通EfiLoaderDataを指定する。
+  - 第3引数に大きさは、gBS->AllocatePages()に渡すメモリ領域の大きさをページ単位で指定する。UEFIにおける1ページの大きさは4KiB(=0x1000バイト)なので0x1000で割る必要がある。また、0x1000できれいに割り切れない場合、端数が切り捨てられてしまい、確保するメモリが端数分だけ足りなくなってしまうので、0x1000で割る前に0xfffを足しこんでおき、端数部分が切り捨てられないようにする。
   ```
   ページ数 = (kernel_file_size + 0xfff) / 0x1000
   ```
 - メモリ領域の確保が完了したら、kernel_file->Read()を使ってカーネルファイル全体をメモリ領域に読み込む。
 - カーネルを起動する前に、今までに動いていたUEFI BIOSのブートサービスを停止しておく。
-```
-EFI_STATUS status;
-status = gBS->ExitBootServices(image_handle, memmap.map_key);
-if (EFI_ERROR(status)) {
-  status = GetMemoryMap(&memmap);
-  if (EFI_ERROR(status)) {
-    Print(L"failed to get memory map: %r\n", status);
-    while (1);
-  }
+  ```
+  EFI_STATUS status;
   status = gBS->ExitBootServices(image_handle, memmap.map_key);
   if (EFI_ERROR(status)) {
-    Print(L"Could not exit boot service: %r\n", status);
-    while (1);
+    status = GetMemoryMap(&memmap);
+    if (EFI_ERROR(status)) {
+      Print(L"failed to get memory map: %r\n", status);
+      while (1);
+    }
+    status = gBS->ExitBootServices(image_handle, memmap.map_key);
+    if (EFI_ERROR(status)) {
+      Print(L"Could not exit boot service: %r\n", status);
+      while (1);
+    }
   }
-}
-```
+  ```
+  - gBS->ExitBootServices()がブートサービスを停止するための関数で、引数にその呼び出し時点で最新のメモリマップのマップキーを指定する必要がある。マップキーはメモリマップ  と紐づいており、メモリマップが変化するとマップキーも変化する。  
+     gBS->ExitBootServices()に指定されたマップキーが最新のメモリマップに紐づくマップキーでない場合は、ブートサービスの停止に失敗する。ブートサービスの停止に失敗した場合は、GetMemoryMap()で再度最新のマップキーを取得してブートサービスの停止をリトライする。
+- ブートサービスの停止が完了したら、カーネルを起動する。
+  ```
+  UINT64 entry_addr = *(UINT64*)(kernel_base_addr + 24);
+  
+  typedef void EntryPointType(void);
+  EntryPointType* entry_point = (EntryPointType*)entry_addr;
+  entry_point();
+  ```
+  - このコードは、メモリ上でエントリポイントのアドレスが置いてある場所を計算しアクセスして、エントリポイントのアドレスを取得している。
+  - EFI形式ファイルは仕様書によると、64ビット用のELFのエントリポイントアドレスは、カーネルファイルを展開したメモリ領域の先頭アドレスから24バイトオフセットした位置に8バ  イトの整数として格納されることになっている。
+  - エントリポイントアドレスが取得出来たら、そのアドレスを関数ポインタの型にキャストして関数を呼び出す。
+  - 関数を呼び出すにあたって、関数のメモリ上のアドレスだけではC言語の関数として呼ぶには不十分で、関数の引数や戻り値の型の情報が必要である。「typedef void EntryPointType(void))」で「引数がvoid型で戻り値もvoid型である関数」を表すEntryPoinTypeの型を定義している。エントリポイントアドレスをEntryPoinType型のポインタにキャストしてあげることで、関数として呼び出すことができるようになる。
+
+- ブートローダをビルドして、カーネルを起動してみる。
+  ```
+  cd $HOME/workspcae/mikanos
+  git checkout osbook_day03a
+  cd $HOME/edk3
+  build
+  $HOME/osbook/devenv/run_qemu.sh Loader.efi kernel.elf
+  ```
+  - QEMUモニタでinfo registersコマンドを実行してRIPの値を確認する。何度か実行して値が変わっていなければ永久ループしている。
+  ![Image 1](RIP.png)
+  - RIPの値付近のメインメモリの内容を確認して、hlt命令があるかを確認すると、RIPは指すメモリ領域はjmp命令があり、そのジャンプ先の0x101010が指すメモリ領域にはhlt命令があることがわかる。つまり、カーネルの起動に成功している。
+  ![Image 1](hlt.png)  
 
 ## その他
 ### edk2でbuildが実行できなくなった場合
