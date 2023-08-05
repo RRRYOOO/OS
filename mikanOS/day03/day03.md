@@ -150,7 +150,12 @@
   kernel_file->Read(kernel_file, &kernel_file_size, (VOID*)kernel_base_addr);
   Print(L"Kernel: 0x%0lx (%lu bytes)\n", kernel_base_addr, kernel_file_size);
   ```
-
+- カーネルファイルを読み込む処理は、メモリマップを書き込むファイルを開くのと同様である。
+- カーネルファイル全体を読むこむためのメモリを確保する。ファイルのサイズを知る必要があるので、kernel_file->GetInfo()を使ってカーネルファイルのファイル情報を取得する。
+- この関数の第4引数にはEFI_INFO型を十分確保できる大きさのメモリ領域を指定する必要がある。ここでは、EFI_INFO型の構造体のサイズに加えてファイル名の文字数+NULL文字のサイズを足しこんだサイズを渡す必要がある。
+  ![Image 1](EFI_FILE_INFO.png)
+- kernel-file->GetInfo()が完了すると、file_info_bufferにはEFI_FILE_INFO型のデータが書かれた状態になる。file_info_bufferをEFI_FILE_INFO型にキャストすると、構造体の各メンバを取得できるようになる。
+- 
 
 ## その他
 ### edk2でbuildが実行できなくなった場合
