@@ -151,11 +151,49 @@
   Print(L"Kernel: 0x%0lx (%lu bytes)\n", kernel_base_addr, kernel_file_size);
   ```
 - カーネルファイルを読み込む処理は、メモリマップを書き込むファイルを開くのと同様である。
-- カーネルファイル全体を読むこむためのメモリを確保する。ファイルのサイズを知る必要があるので、kernel_file->GetInfo()を使ってカーネルファイルのファイル情報を取得する。
-- この関数の第4引数にはEFI_INFO型を十分確保できる大きさのメモリ領域を指定する必要がある。ここでは、EFI_INFO型の構造体のサイズに加えてファイル名の文字数+NULL文字のサイズを足しこんだサイズを渡す必要がある。
+- カーネルファイル全体を読み込むためのメモリを確保する。ファイルのサイズを知る必要があるので、kernel_file->GetInfo()を使ってカーネルファイルのファイル情報を取得する。
+- この関数の第4引数にはEFI_INFO型を十分確保できる大きさのメモリ領域を指定する必要がある。ここでは、EFI_INFO型の構造体のサイズに加えてファイル名の文字数+NULL文字のサイズを足しこんだサイズを渡す必要がある。ファイル情報の構造体は以下である。
+  ```
+  typedef {
+    UINTN  Size, FileSize, PhysicalSize;
+    EFI_TIME  CreateTime, LastAccessTime, ModificationTime;
+    UINT64  Attribute;
+    CHAR16  FileName[];
+  }  EFI_FILE_INFO
+  ```
   ![Image 1](EFI_FILE_INFO.png)
-- kernel-file->GetInfo()が完了すると、file_info_bufferにはEFI_FILE_INFO型のデータが書かれた状態になる。file_info_bufferをEFI_FILE_INFO型にキャストすると、構造体の各メンバを取得できるようになる。
-- 
+- kernel-file->GetInfo()が完了すると、file_info_bufferにはEFI_FILE_INFO型のデータが書かれた状態になる。file_info_bufferをEFI_FILE_INFO型にキャストすると、構造体の各メンバを取得できるようになり、カーネルファイルのサイズが取得できる。
+- カーネルファイルのサイズがわかったら、gBS->AllocatePages()を使ってファイルを格納できる十分なサイズのメモリ領域を確保する。この関数は、第1引数にメモリの確保の仕方、第2引数に確保するメモリ領域の種別、第3引数に大きさ、第4引数には確保したメモリ領域の先頭アドレスを書き込む変数を指定する。
+- 第1引数にメモリの確保の仕方は、以下の3通りから指定する。
+    | メモリの確保の仕方 | 意味 | 
+    | ------------- | -------- | 
+    | AllocateAnyPages | どこでもいいから空いている場所に確保する |
+    | AllocateMaxAddress | 指定したアドレス以下で空いている場所に確保する |
+    | AllocateAddress | 指定したアドレスに確保する。 |
+- 今回のカーネルファイルは0x100000番地に配置して動作させる前提で作られているので、AllocateAddressを指定する。（ld.lldのオプションの--image-baseで指定している）
+- 第2引数に確保するメモリ領域の種別は、ブートローダが使う領域の場合は普通EfiLoaderDataを指定する。
+- 第3引数に大きさは、gBS->AllocatePages()に渡すメモリ領域の大きさをページ単位で指定する。UEFIにおける1ページの大きさは4KiB(=0x1000バイト)なので0x1000で割る必要がある。また、0x1000できれいに割り切れない場合、端数が切り捨てられてしまい、確保するメモリが端数分だけ足りなくなってしまうので、0x1000で割る前に0xfffを足しこんでおき、端数部分が切り捨てられないようにする。
+  ```
+  ページ数 = (kernel_file_size + 0xfff) / 0x1000
+  ```
+- メモリ領域の確保が完了したら、kernel_file->Read()を使ってカーネルファイル全体をメモリ領域に読み込む。
+- カーネルを起動する前に、今までに動いていたUEFI BIOSのブートサービスを停止しておく。
+```
+EFI_STATUS status;
+status = gBS->ExitBootServices(image_handle, memmap.map_key);
+if (EFI_ERROR(status)) {
+  status = GetMemoryMap(&memmap);
+  if (EFI_ERROR(status)) {
+    Print(L"failed to get memory map: %r\n", status);
+    while (1);
+  }
+  status = gBS->ExitBootServices(image_handle, memmap.map_key);
+  if (EFI_ERROR(status)) {
+    Print(L"Could not exit boot service: %r\n", status);
+    while (1);
+  }
+}
+```
 
 ## その他
 ### edk2でbuildが実行できなくなった場合
