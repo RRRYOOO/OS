@@ -79,7 +79,7 @@
   フラグレジスタは、演算系の命令やcmpなどのフラグレジスタに影響を与える命令の直後に、jzやcmovzなどのフラグレジスタの内容によって動作が変わる命令を配置する。
 - CR0は、CPUの重要な設定を集めたレジスタである。  
   CR0のビット0(PE)に1を書き込むと、CPUは保護モードに遷移する。ビット31(PG)に1を書き込むとページングが有効になる。
-## 3.2 初めてのカーネル（osbook_day03a）
+## 3.3 初めてのカーネル（osbook_day03a）
 - 今回は、ブートローダはUEFIアプリとして、カーネルはELFバイナリとして別々のファイルとして開発し、ブートローダからカーネルを呼び出す形式にする。
 - 最初に作成するカーネルは、何もしないで永久ループするプログラムとする。
 - ここで定義するKernelMain()がブートローダから呼び出される関数になるが、このような関数をエントリポイントと呼ぶ。
@@ -221,6 +221,37 @@
   ![Image 1](RIP.png)
   - RIPの値付近のメインメモリの内容を確認して、hlt命令があるかを確認すると、RIPは指すメモリ領域はjmp命令があり、そのジャンプ先の0x101010が指すメモリ領域にはhlt命令があることがわかる。つまり、カーネルの起動に成功している。
   ![Image 1](hlt.png)  
+## 3.4 ブートローダからピクセルを描く（osbook_day03b）
+- UEFIにあるGOP（Graphics Output Protocol）という機能によりピクセル単位で描画するのに必要な情報を得ることができる。
+- ピクセル描画に必要な情報は以下の通り。
+  - フレームバッファの先頭アドレス
+    - フレームバッファとは、ピクセルに描画するための値を敷き詰めたメモリ領域のこと。フレームバッファの各点に値を書き込むと、それがディスプレイのピクセルに反映される仕組みとなっている。
+  - フレームバッファの表示領域の幅と高さ
+    - 解像度ともいう。
+  - フレームバッファの非表示領域を含めた幅
+    - フレームバッファには、表示領域の右側に表示されない余分な横幅が存在することがある。
+  - 1ピクセルのデータ形式
+    - フレームバッファの中で1ピクセルが何バイトで表現されているか、RGBの3色が何ビットずつどんな順番で並んでいるかという情報。1ピクセルが8ビットであれば256色、各色8ビットであれば約1677万色の表示が可能。
+- これらの情報を取得して、適当な模様を描画するプログラムを作成する。
+  ```
+  /* GOPを取得して画面描画する */
+  EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
+  OpenGOP(image_handle ,&gop);  // GOPを取得する。
+  Print(L"Resolution: %ux%u, Pixel Format: %s, %u pixels/line\n",
+      gop->Mode->Info->HorizontalResolution,
+      gop->Mode->Info->VerticalResolution,
+      GetPixelFormatUnicode(gop->Mode->Info->PixelFormat),
+      gop->Mode->Info->PixelsPerScanLine);
+  Print(L"Frame Buffer: 0x%0lx - 0x%0lx, Size: %lu bytes\n",
+      gop->Mode->FrameBufferBase,
+      gop->Mode->FrameBufferBase + gop->Mode->FrameBufferSize,
+      gop->Mode->FrameBufferSize);
+
+  UINT8* frame_buffer = (UINT8*)gop->Mode->FrameBufferBase; // フレームバッファの先頭アドレスをフレームバッファ型にキャスト
+  for(UINTN i = 0; i < gop->Mode->FrameBufferSize; ++i) {
+    frame_buffer[i] = 255;
+  }
+  ```       
 
 ## その他
 ### edk2でbuildが実行できなくなった場合
