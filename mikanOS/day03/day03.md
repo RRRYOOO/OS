@@ -411,3 +411,16 @@ remote: error: GH001: Large files detected. You may want to try Git Large File S
 #### 参考文献
 - [GitHubに100MB超えのファイルをプッシュしてエラーになった](https://qiita.com/kohei_wd/items/cba2437174350b63ad5a)
 - [【Git】100MB越えのファイルをプッシュしようとしたらエラーになる件の解決方法](https://ios-docs.dev/100mb/)
+
+### 自分のブランチのクローンを作成する方法
+- 自分が写経しているブランチのmy-changesのクローンを作成するには以下の手順で行う。
+  - クローンしたいリポジトリのURLでクローンを作成する。
+    ```
+    git clone https://github.com/RRRYOOO/mikanos.git
+    ```
+    - この段階では、ブランチを作成した際のベースリポジトリであるmasterの最新のソースコードがcheckoutされる。
+  - 自分のブランチのmy-changesをcheckoutする。
+    ```
+    git checkout my-changes
+    ```
+    - my-changesの最新のソースコードがcheckoutされる。 
