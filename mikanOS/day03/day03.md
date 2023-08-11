@@ -334,10 +334,59 @@
 #### スタックフレーム
 - スタックフレームの中身は以下のように、局所変数、前関数のRBP、リターンアドレス、引数などで構成されている。
     <img src="stuck_frame_structure.png" width="600px">
-
 #### 参考文献
 - [関数実行の流れを紐解く(弊研究室の某課題について考える2日目)](https://kataware.hatenablog.jp/entry/2017/12/02/224444)
 - [うさぎでもわかる計算機システム　Part13　4つのメモリ領域・システムコール](https://www.momoyama-usagi.com/entry/info-calc-sys13))
+### 本編
+#### <アセンブリ処理学習用コード（C++）>
+```
+void foo() {
+  int i = 42;
+  int* p = &i;
+  int r1 = *p;
+  *p = 1;
+  int r2 = i;
+  uintptr_t addr = reinterpret_cast<uintptr_t>(p);
+  int* q = interpret_cast<int*>(addr);
+```
+- 上記のC++のプログラムをClangで最適化せずにコンパイルすると、以下のようになる。
+#### <アセンブリ処理学習用コード（アセンブリ言語）>
+```
+_Z3foov:
+    push    rbp
+    mov     rbp,  rsp
+    
+    ; int i = 42;
+    mov     dword ptr [rbp - 4],  42
+    
+    ; int* p = &i;
+    lea     rax,  [rbp - 4]
+    mov     qword ptr [rbp - 16],  rax
+    
+    ; int r1 = *p;
+    mov     rax,  qword ptr [rbp - 16]
+    mov     ecx,  dword ptr [rax]
+    mov     dword ptr [rbp - 20],  ecx
+    
+    ; *p = 1;
+    mov     rax,  qword ptr [rbp -16]
+    mov     dword ptr [rax],  1
+    
+    ;int r2 = i;
+    mov     ecx, dword ptr [rbp - 4]
+    mov     dword ptr [rbp - 24],  ecx
+    
+    ; uintptr_t add = reinterpret_cast<uintptr_t>(p);
+    mov     rax,  qword ptr [rbp - 16]
+    mov     qword ptr [rbp - 32],  rax
+    
+    ; int* q = reinterpret_cast<int*>(addr);
+    mov     rax,  qword ptr [rbp - 32]
+    mov     qword ptr [rbp - 40],  rax
+    
+    pop     rbp
+    ret
+```
 
 ## その他
 ### edk2でbuildが実行できなくなった場合
