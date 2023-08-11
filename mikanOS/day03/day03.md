@@ -332,7 +332,9 @@
   - RSP
     - 現在使用しているスタックフレームの一番上を示す。
 #### スタックフレーム
-- 
+- スタックフレームの中身は以下のように、局所変数、前関数のRBP、リターンアドレス、引数などで構成されている。
+    <img src="stuck_frame_structure.png" width="600px">
+
 #### 参考文献
 - [関数実行の流れを紐解く(弊研究室の某課題について考える2日目)](https://kataware.hatenablog.jp/entry/2017/12/02/224444)
 - [うさぎでもわかる計算機システム　Part13　4つのメモリ領域・システムコール](https://www.momoyama-usagi.com/entry/info-calc-sys13))
