@@ -398,6 +398,52 @@ _Z3foov:
     - 次の「mov     rbp,  rsp」では、更新されたRSPの値をRBPにコピーしている。
     - ここまで実行した後のスタックの状態は以下の通りである。
       <img src="foo_stuck01.png" width="600px">
+  - 次には関数の中盤の処理について。
+    ```
+        ; int i = 42;
+        mov     dword ptr [rbp - 4],  42
+        
+        ; int* p = &i;
+        lea     rax,  [rbp - 4]
+        mov     qword ptr [rbp - 16],  rax
+        
+        ; int r1 = *p;
+        mov     rax,  qword ptr [rbp - 16]
+        mov     ecx,  dword ptr [rax]
+        mov     dword ptr [rbp - 20],  ecx
+        
+        ; *p = 1;
+        mov     rax,  qword ptr [rbp -16]
+        mov     dword ptr [rax],  1
+        
+        ;int r2 = i;
+        mov     ecx, dword ptr [rbp - 4]
+        mov     dword ptr [rbp - 24],  ecx
+        
+        ; uintptr_t add = reinterpret_cast<uintptr_t>(p);
+        mov     rax,  qword ptr [rbp - 16]
+        mov     qword ptr [rbp - 32],  rax
+        
+        ; int* q = reinterpret_cast<int*>(addr);
+        mov     rax,  qword ptr [rbp - 32]
+        mov     qword ptr [rbp - 40],  rax
+    ```
+      - 「mov     dword ptr \[rbp - 4],  42」では、左側のオペランドが\[]で表現されている。x86アセンブラでは、\[xxx]はアドレスxxxへのメモリアクセスという解釈になる。
+      - \[]の前のdwordは、メモリアクセスがdwordの大きさ（4バイト）であることを意味している。今回のコンパイラではint型が4バイトデアルことに対応している。
+        その他の大きさについては以下の表のとおりとなる。
+        | 表記 | メモリアクセスの大きさ | 
+        | ------------- | -------- | 
+        | qword | 8バイトアクセス |
+        | dword | 4バイトアクセス |
+        | word | 2バイトアクセス |
+        | byte | 1バイトアクセス |
+      - dwordの後ろにあるptrは、メモリアクセスであることを明示するものである。
+      - 上記より「dword ptr \[rbp - 4]」の意味は、メモリアドレスがPBR-4の位置に4バイト単位のメモリアクセスを行うことになる。  
+        したがって、「mov     dword ptr \[rbp - 4],  42」は、メモリアドレスがPBR-4の位置に4バイト単位で42を書き込むという意味になる。
+      - ここまで実行した後のスタックの状態は以下の通りである。
+        <img src="foo_stuck02.png" width="600px">
+      - a
+
 ## その他
 ### edk2でbuildが実行できなくなった場合
 - edk2でbuildが実行できなくなった場合は、一度以下のコマンド実行してからbuildする。
