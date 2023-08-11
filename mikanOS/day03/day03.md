@@ -322,7 +322,7 @@
     - 関数の作業領域。関数の引数や戻り値、局所変数（ローカル変数）などが含まれる。
 #### 参考文献
 - [関数実行の流れを紐解く(弊研究室の某課題について考える2日目)](https://kataware.hatenablog.jp/entry/2017/12/02/224444)
-- [うさぎでもわかる計算機システム　Part13　4つのメモリ領域・システムコール)]([https://kataware.hatenablog.jp/entry/2017/12/02/224444](https://www.momoyama-usagi.com/entry/info-calc-sys13#4))
+- [うさぎでもわかる計算機システム　Part13　4つのメモリ領域・システムコール](https://www.momoyama-usagi.com/entry/info-calc-sys13))
 
 ## その他
 ### edk2でbuildが実行できなくなった場合
