@@ -397,7 +397,7 @@ _Z3foov:
     - まず、「push  rbp」で呼び出し元の関数のRBPをスタックに積む。RSPはスタックのトップを指し示すので、push命令が実行されると、RSPの指す値も更新される。このケースでは、RSPが8だけ減らされた値に変化する。
     - 次の「mov     rbp,  rsp」では、更新されたRSPの値をRBPにコピーしている。
     - ここまで実行した後のスタックの状態は以下の通りである。
-      <img src="foo_stuck.png" width="600px">
+      <img src="foo_stuck01.png" width="600px">
 ## その他
 ### edk2でbuildが実行できなくなった場合
 - edk2でbuildが実行できなくなった場合は、一度以下のコマンド実行してからbuildする。
