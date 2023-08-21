@@ -84,3 +84,4 @@
         | a.%.b | dir/a.foo.b | dir/foo |
 - %.oやkernel.elfのレシピ内でMakefileを使用していないが、必須項目にMakefileを指定している理由は、Makefileが更新された場合にはビルドをし直すべきだという考えがあるためである。Makefileを必須項目に登録しておけば、Makefileが更新された場合にレシピが再実行される。
 ## 4.2 ピクセルを自在に描く（osbook_day04b）
+
