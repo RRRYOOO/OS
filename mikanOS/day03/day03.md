@@ -253,7 +253,7 @@
       gop->Mode->FrameBufferBase + gop->Mode->FrameBufferSize,
       gop->Mode->FrameBufferSize);
 
-  UINT8* frame_buffer = (UINT8*)gop->Mode->FrameBufferBase; // フレームバッファの先頭アドレスをフレームバッファ型にキャスト
+  UINT8* frame_buffer = (UINT8*)gop->Mode->FrameBufferBase; // フレームバッファの先頭アドレスを8バイトのポインタ型にキャスト
   for(UINTN i = 0; i < gop->Mode->FrameBufferSize; ++i) {
     frame_buffer[i] = 255;
   }
@@ -284,12 +284,12 @@
   - KernelMain()の引数に64ビット整数でブートローダからフレームバッファの先頭アドレスとサイズが設定される。
   - 関数の中の「reinterpret_cast」は、C++特有の表記でキャストの一種である。ここでは、アドレスを表す整数値をポインタに変換している。
   - 今回は白一色ではなく、フレームバッファに書き込む値を変化させることで、ピクセルの色を変えて模様を出すようにしている。
-  - <cstdint>をインクルードすることで、uintX_tという整数型（Xはビット数）を使えるようにしている。CやC++の規格ではshortやintのビット数が決まっていないため、ビット数が重要な場合はこれらのビット数固定の整数型を使用する。フレームバッファの先頭アドレスは64ビット値なので、64ビットの変数で受け取ることがバグを産まないために大切なことである。
-  - 自作OSで<cstdint>を使うには、<cstdint>のありかをClangに伝える必要がある。それを手軽に行うためにbuildenv.shというスクリプトファイルが準備されている。このスクリプトをsourceコマンドで実行する。
+  - \<cstdint>をインクルードすることで、uintX_tという整数型（Xはビット数）を使えるようにしている。CやC++の規格ではshortやintのビット数が決まっていないため、ビット数が重要な場合はこれらのビット数固定の整数型を使用する。フレームバッファの先頭アドレスは64ビット値なので、64ビットの変数で受け取ることがバグを産まないために大切なことである。
+  - 自作OSで\<cstdint>を使うには、\<cstdint>のありかをClangに伝える必要がある。それを手軽に行うためにbuildenv.shというスクリプトファイルが準備されている。このスクリプトをsourceコマンドで実行する。
     ```
     source $HOME/osbook/devenv/buildenv.sh
     ```
-  - buildenv.shを実行すると、CPPFLAGSとLDFLAGSいう環境変数に標準ライブラリへのパスやその他の必要な値を設定してくれる。このCPPLAGSとLDFLAGSを用いてコンパイルとリンクを実行する。
+  - buildenv.shを実行すると、CPPFLAGSとLDFLAGSという環境変数に標準ライブラリへのパスやその他の必要な値を設定してくれる。このCPPLAGSとLDFLAGSを用いてコンパイルとリンクを実行する。
     ```
     clang++ $CPPFLAGS -O2 --target=x86_64-elf -fno-exceptions -ffreestanding -c main.cpp
     ld.lld $LSFLAGS --entry KernelMain -z norelro --image-base 0x100000 --static -o kernel.elf main.o
