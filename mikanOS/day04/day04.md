@@ -84,4 +84,23 @@
         | a.%.b | dir/a.foo.b | dir/foo |
 - %.oやkernel.elfのレシピ内でMakefileを使用していないが、必須項目にMakefileを指定している理由は、Makefileが更新された場合にはビルドをし直すべきだという考えがあるためである。Makefileを必須項目に登録しておけば、Makefileが更新された場合にレシピが再実行される。
 ## 4.2 ピクセルを自在に描く（osbook_day04b）
-
+- 画面上の位置を指定して好きな色を描画できるような機能を開発する。
+- ピクセル描画に必要な情報をまとめるためのFrameBufferConfig構造体の定義を以下に示す。
+  ```
+  #pragma once
+    
+  #include <stdint.h>
+    
+  enum PixelFormat {
+    kPixelRGBResv8BitPerColor,
+    kPixelBGRResv8BitPerColor,
+  };
+    
+  struct FrameBufferConfig {
+    uint8_t* frame_buffer;
+    uint32_t pixels_per_scan_line;
+    uint32_t horizontal_resolution;
+    uint32_t vertical_resolution;
+    enum PixelFormat pixel_format;
+  };
+  ```
