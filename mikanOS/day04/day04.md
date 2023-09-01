@@ -201,8 +201,17 @@ int WritePixel(const FrameBufferConfig& config,
    以下の式から、座標をフレームバッファ先頭からの位置に変換する。
    - 座標をフレームバッファ先頭からの位置 = (余白を含めた横方向のピクセル数 * y) + x
  - ピクセル座標とフレームバッファ先頭からの位置の関係は以下の通り。
-   　 ![Image 1](buffer_and_pixel_coordinate.png)
- - 
 
+   　 ![Image 1](buffer_and_pixel_coordinate.png)
+ - PixelRedGreenBlueReserved8BitPerColorとPixelBlueGreenRedReserved8BitPerColorは両方とも各色8ビットで表されるが、色の並びが異なる。  
+   前者は赤→緑→青→予約領域、後者は青→緑→赤→予約領域となる。
+ - 予約領域は8ビットで構成される。原色の3色だけでは24ビット(3バイト)と中途半端になるため、8ビットの予約領域を追加して32ビット(4バイト)にそろえている。
+ - 1ピクセルは32ビットすなわち4バイトなので、あるピクセル座標の位置をフレームバッファ先頭からの計算するには、ピクセルとしての位置（pixel_position)に4を掛ける。
+ - 上記のコードでは、まず画面全体を白（255,255,255）で塗りつぶした後に、200×100の緑色の四角形を描画している。  
+   実行結果は以下の通り。
+   
+   　 ![Image 1](pixel_drawing_green.png)
+- 
+   
  
 
