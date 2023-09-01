@@ -104,3 +104,21 @@
     enum PixelFormat pixel_format;
   };
   ```
+  - FrameBufferConfig構造体は、以下の情報を保存する。
+    | メンバ | 説明 | 
+    | ------------- | -------- |
+    | frame_buffer | フレームバッファ領域へのポインタ |
+    | pixels_per_scan_line | フレームバッファの余白を含めた横方向のピクセル数 |
+    | horizontal_resolution | 水平方向の解像度 |
+    | vertical_resolution | 垂直方向の解像度 |
+    | pixel_format | ピクセルのデータ形式 |
+  - フレームバッファは3現職の光る強さを整数値で並べたものであり、フレームバッファにどういう色の順番でそれぞれ何ビットで並べるかということをpixel_formatが表している。
+  - UEFIの規格ではピクセルのデータ形式は次の4種類がある。
+  　- PixelRedGreenBlueReserved8BitPerColor
+    - PixelBlueGreenRedReserved8BitPerColor
+    - PixelBitMask
+    - PixelBltOnly
+  - 本プログラムでは、最初の2種類だけサポートすることとする。
+  - 
+    
+
