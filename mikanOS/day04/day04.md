@@ -201,7 +201,8 @@ int WritePixel(const FrameBufferConfig& config,
    以下の式から、座標をフレームバッファ先頭からの位置に変換する。
    - 座標をフレームバッファ先頭からの位置 = (余白を含めた横方向のピクセル数 * y) + x
  - ピクセル座標とフレームバッファ先頭からの位置の関係は以下の通り。
-   
+   　 ![Image 1](buffer_and_pixel_coordinate.png)
+ - 
 
  
 
