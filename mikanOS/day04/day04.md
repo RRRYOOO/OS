@@ -86,6 +86,7 @@
 ## 4.2 ピクセルを自在に描く（osbook_day04b）
 - 画面上の位置を指定して好きな色を描画できるような機能を開発する。
 - ピクセル描画に必要な情報をまとめるためのFrameBufferConfig構造体の定義を以下に示す。
+#### <frame_buffer_config.cpp（フレームバッファの構成情報を表す構造体）>
   ```
   #pragma once
     
@@ -119,6 +120,88 @@
     - PixelBitMask
     - PixelBltOnly
   - 本プログラムでは、最初の2種類だけサポートすることとする。
-  - 
-    
+  - ブートローダ側の変更は以下の通り。
+#### <Main.c（ブートローダはOS本体に描画に必要な情報を渡す）>
+```
+struct FrameBufferConfig config = {
+  (UINT8*)gop->Mode->FrameBufferBase,
+  gop->Mode->Info->PixelsPerScanLine,
+  gop->Mode->Info->HorizontalResolution,
+  gop->Mode->Info->VerticalResolution,
+  0
+};
+switch (gop->Mode->Info->PixelFormat) {
+  case PixelRedGreenBlueReserved8BitPerColor:
+    config.pixel_format = kPixelRGBResv8BitPerColor;
+    break;
+ case PixelBlueGreenRedReserved8BitPerColor:
+    config.pixel_format = kPixelBGRResv8BitPerColor;
+    break;
+ default:
+    Print(L"Unimplemented pixel format: %d\n", gop->Mode->Info->PixelFormat);
+    Halt();
+}
+
+typedef void EntryPointType(const struct FrameBufferConfig*);
+EntryPointType* entry_point = (EntryPointType*)entry_addr;
+entry_point(&config);
+```
+ - UEFIのGOPから取得した情報を、先ほど作った構造体にコピーして、その構造体へのポインタをKernelMain()の引数に渡す。
+-カーネル側の変更は以下の通り。
+#### <main.cpp（WritePixel()を使って画面を描画する）>
+```
+extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
+  for (int x = 0; x < frame_buffer_config.horizontal_resolution; ++x) {
+    for (int y = 0; y < frame_buffer_config.vertical_resolution; ++y) {
+      WritePixel(frame_buffer_config, x, y, {255, 255, 255});
+    }
+  }
+  for (int x = 0; x < 200; ++x) {
+    for (int y = 0; y < 100; ++y) {
+      WritePixel(frame_buffer_config, 100 + x, 100 + y, {0, 255, 0});
+    }
+  }
+  while (1) __asm__("hlt");
+}
+```
+ - 引数で構造体のポインタを参照（const FrameBufferConfig&）で受け取っている。参照型はC++固有の文法で、C言語にはない。参照型の引数を持つ関数をC言語から呼び出すには、参照の代わりにポインタを指定すればよい。  
+   これはC++自体の仕様ではなく、 使用しているコンパイラの仕様であるSystem V AMD64 ABIで決まっている。
+- 指定したピクセル座標描画する関数のWritePixel()の実装を以下に示す。
+#### <main.cpp（WritePixel()）>
+```
+struct PixelColor {
+  uint8_t r, g, b;
+};
+
+/** WritePixelは1つの点を描画します．
+ * @retval 0   成功
+ * @retval 非0 失敗
+ */
+int WritePixel(const FrameBufferConfig& config,
+               int x, int y, const PixelColor& c) {
+  const int pixel_position = config.pixels_per_scan_line * y + x;
+  if (config.pixel_format == kPixelRGBResv8BitPerColor) {
+    uint8_t* p = &config.frame_buffer[4 * pixel_position];
+    p[0] = c.r;
+    p[1] = c.g;
+    p[2] = c.b;
+  } else if (config.pixel_format == kPixelBGRResv8BitPerColor) {
+    uint8_t* p = &config.frame_buffer[4 * pixel_position];
+    p[0] = c.b;
+    p[1] = c.g;
+    p[2] = c.r;
+  } else {
+    return -1;
+  }
+  return 0;
+}
+```
+ - WritePixel()は、指定したピクセル座標(xとy)に指定した色(c)を描画する関数である。ピクセルのデータ形式に基づいて、光の3原色をフレームバッファに書き込む。
+ - pixel_positionには、ピクセルの座標をフレームバッファ先頭からの位置に変換した値が設定される。  
+   以下の式から、座標をフレームバッファ先頭からの位置に変換する。
+   - 座標をフレームバッファ先頭からの位置 = (余白を含めた横方向のピクセル数 * y) + x
+ - ピクセル座標とフレームバッファ先頭からの位置の関係は以下の通り。
+   
+
+ 
 
