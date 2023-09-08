@@ -212,6 +212,28 @@ int WritePixel(const FrameBufferConfig& config,
    
    　 ![Image 1](pixel_drawing_green.png)
 
+## 4.3 C++の機能を使って書き直す（osbook_day04c）
+- ここでは、C++の言語機能である仮想関数を使って、WritePixel()相当の機能を持ちつつ、関数の外側でピクセルのデータ形式を判定するように変更する。
+- C++のクラスを使ってコードを変更する。クラスはデータとその操作をひとまとまりにしたもので、クラスのようにデータとそれを操作する手続きを合わせたものを抽象データ型という。抽象データ型は、外部のユーザからデータの中身の詳細を隠蔽し、外部に公開された手続きによる操作を強制することで、インターフェースと実装を分離できるという特徴がある。
+- クラスを使うことで、ピクセルのデータ形式に依存しない「ピクセル描画インターフェース」と「ピクセルのデータ形式にしたがって実際に描画する実装」を分離する。
+  ```
+  class PixelWriter {
+   public:
+    PixelWriter(const FrameBufferConfig& config) : config_{config} {
+    }
+    virtual ~PixelWriter() = default;
+    virtual void Write(int x, int y, const PixelColor& c) = 0;
+
+   protected:
+    uint8_t* PixelAt(int x, int y) {
+      return config_.frame_buffer + 4 * (config_.pixels_per_scan_line * y + x);
+    }
+
+   private:
+    const FrameBufferConfig& config_;
+  };
+  ```
+
 ## その他
 ### make実行時に「 fatal error: 'cstdint' file not found」のエラーが発生する場合
 - 以下のコマンドを実行して、makeを実行する。
