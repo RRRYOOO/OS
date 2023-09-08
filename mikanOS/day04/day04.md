@@ -211,7 +211,13 @@ int WritePixel(const FrameBufferConfig& config,
    実行結果は以下の通り。
    
    　 ![Image 1](pixel_drawing_green.png)
-- 
-   
+
+## その他
+### make実行時に「 fatal error: 'cstdint' file not found」のエラーが発生する場合
+- 以下のコマンドを実行して、makeを実行する。
+  ```
+  source $HOME/osbook/devenv/buildenv.sh
+  ```
+  - 自作OSで<cstdint>を使うには、<cstdint>のありかをClangに伝える必要がある。それを手軽に行うためにbuildenv.shというスクリプトファイルが準備されている。このスクリプトをsourceコマンドで実行する。（day03より）   
  
 
