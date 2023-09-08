@@ -216,6 +216,7 @@ int WritePixel(const FrameBufferConfig& config,
 - ここでは、C++の言語機能である仮想関数を使って、WritePixel()相当の機能を持ちつつ、関数の外側でピクセルのデータ形式を判定するように変更する。
 - C++のクラスを使ってコードを変更する。クラスはデータとその操作をひとまとまりにしたもので、クラスのようにデータとそれを操作する手続きを合わせたものを抽象データ型という。抽象データ型は、外部のユーザからデータの中身の詳細を隠蔽し、外部に公開された手続きによる操作を強制することで、インターフェースと実装を分離できるという特徴がある。
 - クラスを使うことで、ピクセルのデータ形式に依存しない「ピクセル描画インターフェース」と「ピクセルのデータ形式にしたがって実際に描画する実装」を分離する。
+  #### <main.cpp（PixelWriterクラスの実装（親クラス））>
   ```
   class PixelWriter {
    public:
@@ -233,7 +234,92 @@ int WritePixel(const FrameBufferConfig& config,
     const FrameBufferConfig& config_;
   };
   ```
+  - 上記はインターフェースにあたる部分のソースコードで、PixelWriterクラスを1つ定義している。
+  - このクラスはピクセルを描画するためのWriter()関数を含む。この関数のプロトタイプ宣言の後ろに"= 0"があるのは、この関数が純粋仮想関数であることを表している。純粋仮想関数は、実際の処理の内容は決まっていないけど、戻り値と引数の仕様、関数名は決まっている関数である。子クラスで処理の実装をオーバーライドすることもある。
+  - 戻り値の型が何も書いていない、クラス名と同じ名前のPixelWriter()関数はコンストラクタと呼び、クラスのインスタンスをメモリ上に構築するために呼ばれるのがコンストラクタである。
+  - 頭に"\~"がある~PixelWriter()関数はデストラクタと呼び、インスタンスを破棄する際に呼ばれる。
+  - コンストラクタPixelWriter::PixelWriterはフレームバッファの構成情報を受け取り、クラスのメンバ変数config_にコピーする。構成情報をコンストラクタで受け取っておくことでPixelWriter::Write()を呼び出す際に構成情報を渡す必要がなくなる。
+  #### <main.cpp（PixelWriterクラスを継承したクラス群（子クラス））>
+  ```
+  class RGBResv8BitPerColorPixelWriter : public PixelWriter {
+   public:
+    using PixelWriter::PixelWriter;
 
+    virtual void Write(int x, int y, const PixelColor& c) override {
+      auto p = PixelAt(x, y);
+      p[0] = c.r;
+      p[1] = c.g;
+      p[2] = c.b;
+    }
+  };
+
+  class BGRResv8BitPerColorPixelWriter : public PixelWriter {
+   public:
+    using PixelWriter::PixelWriter;
+
+    virtual void Write(int x, int y, const PixelColor& c) override {
+      auto p = PixelAt(x, y);
+      p[0] = c.b;
+      p[1] = c.g;
+      p[2] = c.r;
+    }
+  };
+  ```
+  - 上記は、インターフェースに対する実装に相当する部分のソースコードである。
+  - インターフェースであるPixelWrterクラスを継承して、2種類のピクセル形式それぞれに対応するRGBResv8BitPerColorPixelWriterクラスとBGRResv8BitPerColorPixelWriterクラスを定義している。
+  - 継承とは、あるクラスを基にして機能の差分を書くやり方の1つで、今回は、基となるPixelWriterクラスのWrite()に実装を与えるために継承している。親クラスの関数を子クラスで上書きすることをオーバーライドと呼ぶ。
+  - 2つのクラスにはコンストラクタの定義が見当たらないが、using宣言によって、親クラスのコンストラクタをそのまま子クラスのコンストラクタとして使うことができる。
+  #### <main.cpp（PixelWriterクラスの使用）>
+  ```
+  char pixel_writer_buf[sizeof(RGBResv8BitPerColorPixelWriter)];
+  PixelWriter* pixel_writer;
+  
+  extern "C" void KernelMain(const FrameBufferConfig& frame_buffer_config) {
+    switch (frame_buffer_config.pixel_format) {
+      case kPixelRGBResv8BitPerColor:
+        pixel_writer = new(pixel_writer_buf)
+          RGBResv8BitPerColorPixelWriter{frame_buffer_config};
+        break;
+      case kPixelBGRResv8BitPerColor:
+        pixel_writer = new(pixel_writer_buf)
+          BGRResv8BitPerColorPixelWriter{frame_buffer_config};
+        break;
+    }
+
+    for (int x = 0; x < frame_buffer_config.horizontal_resolution; ++x) {
+      for (int y = 0; y < frame_buffer_config.vertical_resolution; ++y) {
+        pixel_writer->Write(x, y, {255, 255, 255});
+      }
+    }
+    for (int x = 0; x < 200; ++x) {
+      for (int y = 0; y < 100; ++y) {
+        pixel_writer->Write(x, y, {0, 255, 0});
+      }
+    }
+    while (1) __asm__("hlt");
+  }
+  ```
+  - 上記は定義したクラスを使っている部分のソースコードである。pixel_writerとpixel_writer_bufは、グローバル変数である。
+  - このプログラムではまず、ピクセルのデータ形式に基づいて、2つの子クラスの適する方のインスタンスを生成し、そのインスタンスへのポインタをpixel_writer変数に設定する。その後、pixel_writerを使って1度画面を白に塗りつぶしたあと、200×100の緑の四角を描画する。
+  - newの使い方について記載する。一般的なnewの使い方は、「new クラス名」で、引数は取らない。一般のnewは指定したクラスのインスタンスをヒープ領域に生成する。ヒープ領域は、関数の実行が終了しても破壊されない領域であり、関数を抜けても生存する必要があるデータはnew演算子で確保する。new演算子やmalloc()を使わず普通に定義した変数はスタック領域に配置される。スタック領域に配置された変数は、その変数が定義されたブロックを抜けると破棄される。  
+    new演算子は、メモリ領域を確保した後にコンストラクタを呼び出す。クラスのコンストラクタをプログラマが明示的に呼び出す方法はないので、クラスのインスタンスを作るにはnew演算子を使うしか方法がない。  
+    一般のnewは変数をヒープに確保するといったが、これはOSがメモリを管理できるようになって初めて可能になる。メモリ管理がない場合でもクラスのインスタンスを作成するには、配置newを使う。配置newはメモリの確保を行わず、その代わりに引数に指定したメモリ領域上にインスタンスを生成する。そのメモリ領域に対してコンストラクタを呼び出す。OSにメモリ管理機能がなくても、配列を使えば好きな大きさのメモリを確保することができるので、配列と配置newを組み合わせることでクラスのインスタンス生成が可能になる。
+    #### <main.cpp（配置newの演算子の定義）>
+    ```
+    void* operator new(size_t size, void* buf) {
+      return buf;
+    }
+  
+    void operator delete(void* obj) noexcept {
+    }
+    ```
+    - 配置newは、\<new\>をインクルードするか、自分で定義する必要がある。上記に配置newの実装を記載する。
+    - C++ではoperatorキーワードを使うと演算子を定義することができる。一般のnewの引数はsizeだけだが、配置newでは追加の引数があり、そこにメモリ領域へのポインタが渡される。配置newはメモリ領域自体の確保は必要ないので、引数で受け取ったメモリ領域へのポインタbufをそのまま返すだけでよい。
+    - operator deleteの方は配置newとは関係ない、普通のdelete演算子である。deleteは使用していないが、~PixelWriter()が子の演算子を要求するようなので定義している。 
+  - 配置newを使って生成した子クラスのインスタンスへのポインタを親クラスPixelWriterを指すポインタ型であるpixel_writerに代入する、継承関係がある2つのクラスでは、子クラスのポインタを親クラスのポインタに代入することで、あたかも親クラスであるかのように子クラスを操作することができる。
+ 
+    ![Image 1](pixel_drawing_green_refactor.png)
+  
 ## その他
 ### make実行時に「 fatal error: 'cstdint' file not found」のエラーが発生する場合
 - 以下のコマンドを実行して、makeを実行する。
