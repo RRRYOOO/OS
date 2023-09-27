@@ -381,8 +381,31 @@ int WritePixel(const FrameBufferConfig& config,
   　Elf64_Xword p_align;
   } Elf64_Phdr;
   ```
-  - 
-- 
+- 以上を踏まえてローダの改造方針は以下とする。
+  1. kernel.elfを一時領域に読み込む。
+  2. 一時領域に読み込んだカーネルファイルのプログラムヘッダを読み、最終目的地の番地の範囲を取得する。
+  3. 一時領域から最終目的地へ、LOADセグメントをコピーし、一時領域を削除する。
+- 上記の方針に従って、まずはカーネルファイルを一時的に読み込む処理を作成する。コードは以下。
+  #### <Main.c（カーネルファイルを一時領域に読み込み）>
+  ```
+    EFI_FILE_INFO* file_info = (EFI_FILE_INFO*)file_info_buffer;
+  UINTN kernel_file_size = file_info->FileSize;
+
+  VOID* kernel_buffer;
+  status = gBS->AllocatePool(EfiLoaderData, kernel_file_size, &kernel_buffer);
+  if (EFI_ERROR(status)) {
+    Print(L"failed to allocate pool: %r\n", status);
+    Halt();
+  }
+  status = kernel_file->Read(kernel_file, &kernel_file_size, kernel_buffer);
+  if (EFI_ERROR(status)) {
+    Print(L"error: %r", status);
+    Halt();
+  }
+  ```
+  - gBS->AllocatePool()は、カーネルファイルを読み込むための一時領域確保に使用する。この関数は、gBS->AllocatePages()と異なってページ単位ではなくバイト単位でメモリを確保する。その代わり、確保する場所を指定する機能がない。今回はカーネルファイルを一時的に読み込むために使用するため、場所の指定は不要である。
+  - gBS->AllocatePool()の第1引数に確保するメモリ領域の種別を指定する。ブートローダが使う領域の場合は普通EfiLoaderDataを指定する。
+  - gBS->AllocatePool()が成功すると、kernel_bufferには確保されたメモリ領域の先頭アドレスが格納される。そのアドレスをkernel_file->Readに指定することで、カーネルファイルの内容をすべて一時領域へ読み込むことができる。
 
   
 ## その他
