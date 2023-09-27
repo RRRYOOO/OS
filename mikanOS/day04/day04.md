@@ -326,6 +326,6 @@ int WritePixel(const FrameBufferConfig& config,
   ```
   source $HOME/osbook/devenv/buildenv.sh
   ```
-  - 自作OSで<cstdint>を使うには、<cstdint>のありかをClangに伝える必要がある。それを手軽に行うためにbuildenv.shというスクリプトファイルが準備されている。このスクリプトをsourceコマンドで実行する。（day03より）   
+  - 自作OSで<cstdint>を使うには、\<cstdint\>のありかをClangに伝える必要がある。それを手軽に行うためにbuildenv.shというスクリプトファイルが準備されている。このスクリプトをsourceコマンドで実行する。（day03より）   
  
 
