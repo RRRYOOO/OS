@@ -319,6 +319,11 @@ int WritePixel(const FrameBufferConfig& config,
   - 配置newを使って生成した子クラスのインスタンスへのポインタを親クラスPixelWriterを指すポインタ型であるpixel_writerに代入する、継承関係がある2つのクラスでは、子クラスのポインタを親クラスのポインタに代入することで、あたかも親クラスであるかのように子クラスを操作することができる。
  
     ![Image 1](pixel_drawing_green_refactor.png)
+
+## 4.5 ローダを改良する（osbook_day04d）
+- 本来、ローダはカーネルファイルに記録された情報を元にメモリの大きさを決める必要がある。kernel.elfのフォーマットであるELF形式では、メモリへの読み込みに関する情報はプログラムヘッダという部分に記載されている。
+- ELF形式は以下のような構造をしている。
+    ![Image 1](datastructure_elf.png)
   
 ## その他
 ### make実行時に「 fatal error: 'cstdint' file not found」のエラーが発生する場合
