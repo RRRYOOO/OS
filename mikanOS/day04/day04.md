@@ -340,8 +340,49 @@ int WritePixel(const FrameBufferConfig& config,
     | 0x2000 | 0x102000 | 0x0000 | 0x0018 | RW  |
     - 仮想アドレスが0x100000から始まっているのは、ld.lldのオプションに「--image-base 0x100000」を指定したからである。
     - 3つ目のLOADセグメントは、ファイル上でのサイズとメモリ上でのサイズが異なる。その理由は、3つ目のLOADセグメントには.bssセクションが含まれているからである。.bssセクションとは、通常、初期値なしのグローバル変数が配置されるセクションである。初期値が無いので、ファイルに記録しておく必要がないため、ファイル上での大きさは0、メモリ上では大きさを持つ変数となる。
-    - 3つのLOADセクションを以下のようにメモリ上へ読み込めば良い。
-  - ローダは、LOADセグメントに記載された情報に従って、ファイルのデータをメモリにコピーする。このような処理をロードという。
+  - 3つのLOADセクションを以下のようにメモリ上へ読み込めば良い。
+      ![Image 1](Load.png)
+- 64ビット用ELFのファイルヘッダは以下のような構造になっている。
+  #### <elf.hpp（64ビットELFのファイルヘッダ）>
+  ```
+  #define EI_NIDENT 16
+  
+  typedef struct {
+  　unsigned char e_ident[EI_NIDENT];
+  　Elf64_Half    e_type;
+  　Elf64_Half    e_machine;
+  　Elf64_Word    e_version;
+  　Elf64_Addr    e_entry;
+  　Elf64_Off     e_phoff;
+  　Elf64_Off     e_shoff;
+  　Elf64_Word    e_flags;
+  　Elf64_Half    e_ehsize;
+  　Elf64_Half    e_phentsize;
+  　Elf64_Half    e_phnum;
+  　Elf64_Half    e_shentsize;
+  　Elf64_Half    e_shnum;
+  　Elf64_Half    e_shstrndx;
+  } Elf64_Ehdr;
+  ```
+  - e_phoffがプログラムヘッダのファイルオフセットを表す項目である。このファイル領域を読めばプログラムヘッダを取得できる。
+  - プログラムヘッダは配列になっていて、e_phentsizeは要素1つの大きさを表し、e_phnumは要素数を表す。
+
+- プログラムヘッダの各要素は以下のような構造体になっている。
+  #### <elf.hpp（64ビットELFのプログラムヘッダの要素）>
+  ```
+  typedef struct {
+  　Elf64_Word  p_type;      // PHDR、LOADなどのセグメント種別
+  　Elf64_Word  p_flags;     // フラグ
+  　Elf64_Off   p_offset;    // オフセット
+  　Elf64_Addr  p_vaddr;     // 仮想Addr
+  　Elf64_Addr  p_paddr;
+  　Elf64_Xword p_filesz;    // ファイルサイズ
+  　Elf64_Xword p_memsz;     // メモリサイズ
+  　Elf64_Xword p_align;
+  } Elf64_Phdr;
+  ```
+  - 
+- 
 
   
 ## その他
