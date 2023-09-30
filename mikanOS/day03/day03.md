@@ -156,15 +156,15 @@
   - カーネルファイル全体を読み込むためのメモリを確保する。ファイルのサイズを知る必要があるので、kernel_file->GetInfo()を使ってカーネルファイルのファイル情報を取得する。
   - この関数の第4引数にはEFI_INFO型を十分確保できる大きさのメモリ領域を指定する必要がある。ここでは、EFI_INFO型の構造体のサイズに加えてファイル名の文字数+NULL文字のサイズを足しこんだサイズを渡す必要がある。ファイル情報の構造体は以下である。
 #### <Main.c（ファイル情報の構造体）>
-    ```
-    typedef {
-      UINTN  Size, FileSize, PhysicalSize;
-      EFI_TIME  CreateTime, LastAccessTime, ModificationTime;
-      UINT64  Attribute;
-      CHAR16  FileName[];
-    }  EFI_FILE_INFO
-    ```
-    ![Image 1](EFI_FILE_INFO.png)
+```
+typedef {
+  UINTN  Size, FileSize, PhysicalSize;
+  EFI_TIME  CreateTime, LastAccessTime, ModificationTime;
+  UINT64  Attribute;
+  CHAR16  FileName[];
+}  EFI_FILE_INFO
+```
+![Image 1](EFI_FILE_INFO.png)
   - kernel-file->GetInfo()が完了すると、file_info_bufferにはEFI_FILE_INFO型のデータが書かれた状態になる。file_info_bufferをEFI_FILE_INFO型にキャストすると、構造体の各メンバを取得できるようになり、カーネルファイルのサイズが取得できる。
   - カーネルファイルのサイズがわかったら、gBS->AllocatePages()を使ってファイルを格納できる十分なサイズのメモリ領域を確保する。この関数は、第1引数にメモリの確保の仕方、第2引数に確保するメモリ領域の種別、第3引数に大きさ、第4引数には確保したメモリ領域の先頭アドレスを書き込む変数を指定する。
   - 第1引数にメモリの確保の仕方は、以下の3通りから指定する。
