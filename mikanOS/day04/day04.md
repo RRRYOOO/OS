@@ -388,7 +388,7 @@ int WritePixel(const FrameBufferConfig& config,
 - 上記の方針に従って、まずはカーネルファイルを一時的に読み込む処理を作成する。コードは以下。
   #### <Main.c（カーネルファイルを一時領域に読み込み）>
   ```
-    EFI_FILE_INFO* file_info = (EFI_FILE_INFO*)file_info_buffer;
+  EFI_FILE_INFO* file_info = (EFI_FILE_INFO*)file_info_buffer;
   UINTN kernel_file_size = file_info->FileSize;
 
   VOID* kernel_buffer;
