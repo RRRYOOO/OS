@@ -404,7 +404,7 @@ int WritePixel(const FrameBufferConfig& config,
   }
   ```
   - gBS->AllocatePool()は、カーネルファイルを読み込むための一時領域確保に使用する。この関数は、gBS->AllocatePages()と異なってページ単位ではなくバイト単位でメモリを確保する。その代わり、確保する場所を指定する機能がない。今回はカーネルファイルを一時的に読み込むために使用するため、場所の指定は不要である。
-  - gBS->AllocatePool()の第1引数に確保するメモリ領域の種別を指定する。ブートローダが使う領域の場合は普通EfiLoaderDataを指定する。([[3.3 初めてのカーネル（osbook_day03a）]](https://github.com/RRRYOOO/OS/blob/main/mikanOS/day03/day03.md#mainc%E3%83%95%E3%82%A1%E3%82%A4%E3%83%AB%E6%83%85%E5%A0%B1%E3%81%AE%E6%A7%8B%E9%80%A0%E4%BD%93)より) 
+  - gBS->AllocatePool()の第1引数に確保するメモリ領域の種別を指定する。ブートローダが使う領域の場合は普通EfiLoaderDataを指定する。
   - gBS->AllocatePool()が成功すると、kernel_bufferには確保されたメモリ領域の先頭アドレスが格納される。そのアドレスをkernel_file->Readに指定することで、カーネルファイルの内容をすべて一時領域へ読み込むことができる。
 - 次に最終目的地の番地の範囲を取得して、コピー先のメモリを確保する。
   #### <Main.c（コピー先のメモリ領域の確保）>
