@@ -426,6 +426,7 @@ int WritePixel(const FrameBufferConfig& config,
   - それらを使って必要なメモリ領域の大きさをページ単位で計算し、メモリを確保する。
     （0xffffを足しこんでいる理由は以下を復習のこと。[[3.3 初めてのカーネル（osbook_day03a）]](https://github.com/RRRYOOO/OS/blob/main/mikanOS/day03/day03.md#33-%E5%88%9D%E3%82%81%E3%81%A6%E3%81%AE%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%ABosbook_day03a)）
   - CalcLoadAddressRange()の実装は以下の通り。
+    #### <Main.c（CalcLoadAddressRange()の実装）>
     ```
     void CalcLoadAddressRange(Elf64_Ehdr* ehdr, UINT64* first, UINT64* last) {
       Elf64_Phdr* phdr = (Elf64_Phdr*)((UINT64)ehdr + ehdr->e_phoff);
@@ -441,7 +442,36 @@ int WritePixel(const FrameBufferConfig& config,
     - この関数は、カーネルファイル内のすべてのLOADセグメントをfor文で順番に確認していき、開始アドレス(first)と終了アドレス(last)を更新していく。その際、変数firstを絶対に現れない大きな値(MAX_UINT64)で、lastを絶対現れない小さな値(0)で初期化しておき、比較・更新を行う。
     - phdrはプログラムヘッダの配列を指すポインタで、phdr[i]はi番目のプログラムヘッダを表す。p_typeを確認し、それがLOADセグメントである場合のみ処理を実行し、それ以外の場合はスキップする。
     - プログラムヘッダ内のp_vaddrが各セグメントの開始アドレスに相当し、p_vaddr + p_memszが終了アドレスに相当する。for文で各セグメントのプログラムヘッダを確認して、処理完了時にはp_vaddrの最小値がfirstに、p_vaddr + p_memszの最大値がlastに設定される。firstとlastに挟まれた範囲を1つのセグメントとみなして、そのサイズ分（ページ単位）だけのメモリ領域を確保する。
-    - 
+- 次に一時領域から最終目的地へLOADセグメントをコピーする。
+  #### <Main.c（Loadセグメントのコピー）>
+  ```
+  CopyLoadSegments(kernel_ehdr);
+  Print(L"Kernel: 0x%0lx - 0x%0lx\n", kernel_first_addr, kernel_last_addr);
+
+  status = gBS->FreePool(kernel_buffer);
+  if (EFI_ERROR(status)) {
+    Print(L"failed to free pool: %r\n", status);
+    Halt();
+  }
+  ```
+  - CopCopyLoadSegments()を呼び出してLoadセグメントを最終目的地にコピーする。その後に実行しているg->FreePool()は一時領域を解放するための処理。
+  - CopCopyLoadSegments()の実装は以下。
+    #### <Main.c（CopCopyLoadSegments()の実装）>
+    ```
+    void CopyLoadSegments(Elf64_Ehdr* ehdr) {
+      Elf64_Phdr* phdr = (Elf64_Phdr*)((UINT64)ehdr + ehdr->e_phoff);
+      for (Elf64_Half i = 0; i < ehdr->e_phnum; ++i) {
+        if (phdr[i].p_type != PT_LOAD) continue;
+
+        UINT64 segm_in_file = (UINT64)ehdr + phdr[i].p_offset;
+        CopyMem((VOID*)phdr[i].p_vaddr, (VOID*)segm_in_file, phdr[i].p_filesz);
+
+        UINTN remain_bytes = phdr[i].p_memsz - phdr[i].p_filesz;
+        SetMem((VOID*)(phdr[i].p_vaddr + phdr[i].p_filesz), remain_bytes, 0);
+      }
+    }
+    ```
+    - a
   
 ## その他
 ### make実行時に「 fatal error: 'cstdint' file not found」のエラーが発生する場合
