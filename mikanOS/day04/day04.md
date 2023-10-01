@@ -423,7 +423,7 @@ int WritePixel(const FrameBufferConfig& config,
   ```
   - 最終目的地の番地の範囲とは、具体的には0x100000から始まるアドレスの範囲のこと。
   - CalcLoadAddressRange()が範囲を計算し、範囲の開始アドレスを変数kernel_first_addrに、終了アドレスを変数kernel_last_addrに設定する。
-  - それらを使って必要なメモリ領域の大きさをページ単位で計算し、メモリを確保する。
+  - それらを使って必要なメモリ領域の大きさをページ単位で計算し、メモリを確保する。  
     （0xffffを足しこんでいる理由は以下を復習のこと。[[3.3 初めてのカーネル（osbook_day03a）]](https://github.com/RRRYOOO/OS/blob/main/mikanOS/day03/day03.md#33-%E5%88%9D%E3%82%81%E3%81%A6%E3%81%AE%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%ABosbook_day03a)）
   - CalcLoadAddressRange()の実装は以下の通り。
     #### <Main.c（CalcLoadAddressRange()の実装）>
