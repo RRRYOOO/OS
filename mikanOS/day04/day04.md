@@ -481,7 +481,7 @@ int WritePixel(const FrameBufferConfig& config,
     UINT64 entry_addr = *(UINT64*)(kernel_first_addr + 24); 
     ```
     - EFI形式ファイルは仕様書によると、64ビット用のELFのエントリポイントアドレスは、カーネルファイルを展開したメモリ領域の先頭アドレスから24バイトオフセットした位置に8バイトの整数として格納されることになっている。([[3.3 初めてのカーネル（osbook_day03a）]](https://github.com/RRRYOOO/OS/blob/main/mikanOS/day03/day03.md#mainc%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%81%AE%E8%B5%B7%E5%8B%95)より)
-- Loader改造後のコードの実行結果は以下の通り。
+- ローダ改造後のコードの実行結果は以下の通り。
   ![Image 1](pixel_drawing_green_refactor_loader_refactor.png)
 
 ## その他
