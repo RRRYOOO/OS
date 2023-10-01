@@ -406,7 +406,21 @@ int WritePixel(const FrameBufferConfig& config,
   - gBS->AllocatePool()は、カーネルファイルを読み込むための一時領域確保に使用する。この関数は、gBS->AllocatePages()と異なってページ単位ではなくバイト単位でメモリを確保する。その代わり、確保する場所を指定する機能がない。今回はカーネルファイルを一時的に読み込むために使用するため、場所の指定は不要である。
   - gBS->AllocatePool()の第1引数に確保するメモリ領域の種別を指定する。ブートローダが使う領域の場合は普通EfiLoaderDataを指定する。
   - gBS->AllocatePool()が成功すると、kernel_bufferには確保されたメモリ領域の先頭アドレスが格納される。そのアドレスをkernel_file->Readに指定することで、カーネルファイルの内容をすべて一時領域へ読み込むことができる。
+- 次に最終目的地の番地の範囲を取得して、コピー先のメモリを確保する。
+  #### <Main.c（コピー先のメモリ領域の確保）>
+  ```
+  Elf64_Ehdr* kernel_ehdr = (Elf64_Ehdr*)kernel_buffer;
+  UINT64 kernel_first_addr, kernel_last_addr;
+  CalcLoadAddressRange(kernel_ehdr, &kernel_first_addr, &kernel_last_addr);
 
+  UINTN num_pages = (kernel_last_addr - kernel_first_addr + 0xfff) / 0x1000;
+  status = gBS->AllocatePages(AllocateAddress, EfiLoaderData,
+                              num_pages, &kernel_first_addr);
+  if (EFI_ERROR(status)) {
+    Print(L"failed to allocate pages: %r\n", status);
+    Halt();
+  }
+  ```
   
 ## その他
 ### make実行時に「 fatal error: 'cstdint' file not found」のエラーが発生する場合
