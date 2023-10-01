@@ -423,8 +423,25 @@ int WritePixel(const FrameBufferConfig& config,
   ```
   - 最終目的地の番地の範囲とは、具体的には0x100000から始まるアドレスの範囲のこと。
   - CalcLoadAddressRange()が範囲を計算し、範囲の開始アドレスを変数kernel_first_addrに、終了アドレスを変数kernel_last_addrに設定する。
-  - それらを使って必要なメモリ領域の大きさをページ単位で計算し、メモリを確保する。  
+  - それらを使って必要なメモリ領域の大きさをページ単位で計算し、メモリを確保する。
     （0xffffを足しこんでいる理由は以下を復習のこと。[[3.3 初めてのカーネル（osbook_day03a）]](https://github.com/RRRYOOO/OS/blob/main/mikanOS/day03/day03.md#33-%E5%88%9D%E3%82%81%E3%81%A6%E3%81%AE%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%ABosbook_day03a)）
+  - CalcLoadAddressRange()の実装は以下の通り。
+    ```
+    void CalcLoadAddressRange(Elf64_Ehdr* ehdr, UINT64* first, UINT64* last) {
+      Elf64_Phdr* phdr = (Elf64_Phdr*)((UINT64)ehdr + ehdr->e_phoff);
+      *first = MAX_UINT64;
+      *last = 0;
+      for (Elf64_Half i = 0; i < ehdr->e_phnum; ++i) {
+        if (phdr[i].p_type != PT_LOAD) continue;
+        *first = MIN(*first, phdr[i].p_vaddr);
+        *last = MAX(*last, phdr[i].p_vaddr + phdr[i].p_memsz);
+      }
+    }
+    ```
+    - この関数は、カーネルファイル内のすべてのLOADセグメントをfor文で順番に確認していき、開始アドレス(first)と終了アドレス(last)を更新していく。その際、変数firstを絶対に現れない大きな値(MAX_UINT64)で、lastを絶対現れない小さな値(0)で初期化しておき、比較・更新を行う。
+    - phdrはプログラムヘッダの配列を指すポインタで、phdr[i]はi番目のプログラムヘッダを表す。p_typeを確認し、それがLOADセグメントである場合のみ処理を実行し、それ以外の場合はスキップする。
+    - プログラムヘッダ内のp_vaddrが各セグメントの開始アドレスに相当し、p_vaddr + p_memszが終了アドレスに相当する。for文で各セグメントのプログラムヘッダを確認して、処理移管料時にはp_vaddrの最小値がfirstに、p_vaddr + p_memszの最大値がlastに設定される。firstとlastに挟まれた範囲を1つのセグメントとみなして、そのサイズ分(（ページ単位）だけのメモリ領域を確保する。
+    - 
   
 ## その他
 ### make実行時に「 fatal error: 'cstdint' file not found」のエラーが発生する場合
