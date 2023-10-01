@@ -454,7 +454,7 @@ int WritePixel(const FrameBufferConfig& config,
     Halt();
   }
   ```
-  - CopCopyLoadSegments()を呼び出してLoadセグメントを最終目的地にコピーする。その後に実行しているg->FreePool()は一時領域を解放するための処理。
+  - CopCopyLoadSegments()を呼び出してLoadセグメントを最終目的地にコピーする。その後に実行しているgBS->FreePool()は一時領域を解放するための処理。
   - CopCopyLoadSegments()の実装は以下。
     #### <Main.c（CopCopyLoadSegments()の実装）>
     ```
