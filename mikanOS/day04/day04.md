@@ -424,7 +424,7 @@ int WritePixel(const FrameBufferConfig& config,
   - 最終目的地の番地の範囲とは、具体的には0x100000から始まるアドレスの範囲のこと。
   - CalcLoadAddressRange()が範囲を計算し、範囲の開始アドレスを変数kernel_first_addrに、終了アドレスを変数kernel_last_addrに設定する。
   - それらを使って必要なメモリ領域の大きさをページ単位で計算し、メモリを確保する。  
-    （0xffffを足しこんでいる理由は以下を復習のこと。[[3.3 初めてのカーネル（osbook_day03a）]](https://github.com/RRRYOOO/OS/blob/main/mikanOS/day03/day03.md#33-%E5%88%9D%E3%82%81%E3%81%A6%E3%81%AE%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%ABosbook_day03a)）
+    （0xffffを足しこんでいる理由は以下を復習のこと。[[3.3 初めてのカーネル（osbook_day03a）]](https://github.com/RRRYOOO/OS/blob/main/mikanOS/day03/day03.md#mainc)）
   - CalcLoadAddressRange()の実装は以下の通り。
     #### <Main.c（CalcLoadAddressRange()の実装）>
     ```
@@ -471,7 +471,17 @@ int WritePixel(const FrameBufferConfig& config,
       }
     }
     ```
-    - a
+    - この関数は、一時領域のLOADセグメントを最終目的地にコピーを行う。
+    -  phdrはプログラムヘッダの配列を指すポインタで、phdr[i]はi番目のプログラムヘッダを表す。p_typeを確認し、それがLOADセグメントである場合のみ以下の処理を実行し、それ以外の場合はスキップする。  
+      1. segm_in_fileが指す一時領域からp_vaddrが指す最終目的地へデータをコピーする。（CopyMem()）
+      2. セグメントのメモリ上のサイズがファイル上のサイズより大きい場合（remain_bytes > 0）、残りを0で埋める。（SetMem()）。
+  - 最終目的地へすべてのLOADセグメントをコピーし終えたら、コピー先からエントリポイントを取得する。 
+    #### <Main.c（エントリポイントの取得）>
+    ```
+    UINT64 entry_addr = *(UINT64*)(kernel_first_addr + 24); 
+    ```
+    - EFI形式ファイルは仕様書によると、64ビット用のELFのエントリポイントアドレスは、カーネルファイルを展開したメモリ領域の先頭アドレスから24バイトオフセットした位置に8バイトの整数として格納されることになっている。([[3.3 初めてのカーネル（osbook_day03a）]より](https://github.com/RRRYOOO/OS/blob/main/mikanOS/day03/day03.md#mainc%E3%82%AB%E3%83%BC%E3%83%8D%E3%83%AB%E3%81%AE%E8%B5%B7%E5%8B%95)) 
+      
   
 ## その他
 ### make実行時に「 fatal error: 'cstdint' file not found」のエラーが発生する場合
