@@ -23,3 +23,21 @@
     0b00000000,   //
   };
   ```
+  - 上記のように字形を表すデータをフォントと呼ぶ。プログラミング的には、フォントの大きさが2のべき乗だと扱いやすいので、今回は横8ピクセル、縦16ピクセルでフォントを用意する。
+  - フォントは塗るか、塗らないかを表せば十分なので、1ピクセルは1ビットで表せる。
+- フォント描画用の関数を以下に示す。
+  #### <main.cpp（フォント描画用の関数）>
+  ```
+  void WriteAscii(PixelWriter& writer, int x, int y, char c, const PixelColor& color) {
+    if (c != 'A') {
+      return;
+    }
+    for (int dy = 0; dy < 16; ++dy) {
+      for (int dx = 0; dx < 8; ++dx) {
+        if (kFontA[dy] << dx & 0x80u) {
+          writer.Write(x + dx, y + dy, color);
+        }
+      }
+    }
+  }
+  ``` 
