@@ -122,7 +122,7 @@
   ```
   - 入力がベタのバイナリなので、"-I binary"でそのことを明示する必要がある。
   - コマンド実行後に、 hankaku.oが生成される。このファイルをmain.oなどと一緒にリンクすると、プログラムの中から変数として使えるようになる。
-- 組み込まれたデータの開始アドレス、終了アドレス+1、サイズは、objcopyがファイル名を元にしてそれぞれ_binary_hankaku_bin_start, _binary_hankaku_bin_end, _binary_hankaku_bin_sizeというシンボルを生成するので、Cコードからはその名称で参照する。
+- 組み込まれたデータの開始アドレス、終了アドレス+1、サイズは、objcopyがファイル名を元にしてそれぞれ"_binary_hankaku_bin_start"、"_binary_hankaku_bin_end"、"_binary_hankaku_bin_size"というシンボルを生成するので、Cコードからはその名称で参照する。
 - 変数を使ってフォントデータを取得する関数GetFont()を以下のように定義する。
   #### <font.cpp（指定した文字のフォントデータを取得）>  
   ```
