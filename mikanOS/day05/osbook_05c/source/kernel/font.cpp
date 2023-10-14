@@ -13,7 +13,7 @@ const uint8_t* GetFont(char c) {
   return &_binary_hankaku_bin_start + index;    // フォントデータの開始アドレスからindexだけ進んだアドレスを返す
 }
 
-/* 'A'のフォント描画用の関数 */
+/* フォント描画用の関数 */
 void WriteAscii(PixelWriter& writer, int x, int y, char c, const PixelColor& color) {
   const uint8_t* font = GetFont(c);   // 指定した文字のフォントデータの格納先アドレスを取得
   if (font == nullptr) {    // アドレス読み出し失敗
@@ -22,7 +22,7 @@ void WriteAscii(PixelWriter& writer, int x, int y, char c, const PixelColor& col
   for (int dy = 0; dy < 16; ++dy) {
     for (int dx = 0; dx < 8; ++dx) {
       if (font[dy] << dx & 0x80u) {
-        writer.Write(x + dx, y + dy, color);
+        writer.Write(x + dx, y + dy, color);    // 指定した位置のピクセルを指定したカラーで描画
       }
     }
   }
