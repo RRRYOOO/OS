@@ -138,3 +138,94 @@
     return &_binary_hankaku_bin_start + index;
   }
   ```
+  - 3つの変数宣言にexternが付いている。externは、どこか他のオブジェクトファイルにある変数を参照することをコンパイラに伝える役割をしている。今回のケースでは、hankaku.oにある変数をfont.oで使用するためにexternをつけている。
+- フォント描画用の関数も以下のように変更する。
+  #### <font.cpp（フォント描画用の関数）>
+  ```
+  void WriteAscii(PixelWriter& writer, int x, int y, char c, const PixelColor& color) {
+    const uint8_t* font = GetFont(c);
+    if (font == nullptr) {
+      return;
+    }
+    for (int dy = 0; dy < 16; ++dy) {
+      for (int dx = 0; dx < 8; ++dx) {
+        if (font[dy] << dx & 0x80u) {
+          writer.Write(x + dx, y + dy, color);
+        }
+      }
+    }
+  }
+  ```
+  - 引数cで指定された文字のフォントデータをGetFont()で取得し、それに基づいて対応する位置に描画を行う。
+- Makefileにも、hankaku.txtをhankaku.binに変換し、そこからhankaku.oを生成するためのルールを追加する。
+  #### <Makefile（hankaku.oを生成するためのルールを追加）>
+  ```
+  TARGET = kernel.elf
+  OBJS = main.o graphics.o font.o hankaku.o
+  DEPENDS = $(join $(dir $(OBJS)),$(addprefix .,$(notdir $(OBJS:.o=.d))))
+  
+  CXXFLAGS += -O2 -Wall -g --target=x86_64-elf -ffreestanding -mno-red-zone \
+              -fno-exceptions -fno-rtti -std=c++17
+  LDFLAGS  += --entry KernelMain -z norelro --image-base 0x100000 --static
+  
+  
+  .PHONY: all
+  all: $(TARGET)
+  
+  .PHONY: clean
+  clean:
+  	rm -rf *.o
+  
+  kernel.elf: $(OBJS) Makefile
+  	ld.lld $(LDFLAGS) -o kernel.elf $(OBJS)
+  
+  %.o: %.cpp Makefile
+  	clang++ $(CPPFLAGS) $(CXXFLAGS) -c $<
+  
+  .%.d: %.cpp
+  	clang++ $(CPPFLAGS) $(CXXFLAGS) -MM $< > $@
+  	$(eval OBJ = $(<:.cpp=.o))
+  	sed --in-place 's|$(notdir $(OBJ))|$(OBJ)|' $@
+  
+  hankaku.bin: hankaku.txt
+  	../tools/makefont.py -o $@ $<
+  
+  hankaku.o: hankaku.bin
+  	objcopy -I binary -O elf64-x86-64 -B i386:x86-64 $< $@
+  
+  .%.d: %.bin
+  	touch $@
+  
+  .PHONY: depends
+  depends:
+  	$(MAKE) $(DEPENDS)
+  
+  -include $(DEPENDS)
+  ```
+  - allから始まって再帰的にルールが実行されるフローは以下の通り。
+    ```
+    all: kernel.elf
+    -->必須項目（kernel.elf）のルール（kernel.elf: main.o graphics.o font.o hankaku.o Malefile）を実行。
+        -->必須項目（main.o）のルール（main.o: main.cpp Malefile）を実行。
+            -->必須項目（main.cpp）のルールを実行しようとするがないので何もしない。
+            -->必須項目（Makefile）のルールを実行しようとするがないので何もしない。
+            -->レシピを実行。clang++でmain.oを生成。
+        -->必須項目（graphics.o）のルール（graphics.o: graphics.cpp Malefile）を実行。
+            -->必須項目（graphics.cpp）のルールを実行しようとするがないので何もしない。
+            -->必須項目（Makefile）のルールを実行しようとするがないので何もしない。
+            -->レシピを実行。clang++でgraphics.oを生成。
+        -->必須項目（font.o）のルール（font.o: font.cpp Malefile）を実行。
+            -->必須項目（font.cpp）のルールを実行しようとするがないので何もしない。
+            -->必須項目（Makefile）のルールを実行しようとするがないので何もしない。
+            -->レシピを実行。clang++でgraphics.oを生成。
+        -->必須項目（hankaku.o）のルール（objcopy -I binary -O elf64-x86-64 -B i386:x86-64 $< $@）を実行。
+            -->必須項目（hankaku.bin）のルール(../tools/makefont.py -o $@ $<)を実行。
+              -->必須項目（hankaku.txt）のルールを実行しようとするがないので何もしない。
+              -->レシピを実行。makefont.pyでhankaku.txtをhankaku.binに変換。
+            -->レシピを実行。objcopyコマンドでhankaku.binからhankaku.oを生成。
+        -->必須項目（Makefile）のルールを実行しようとするがないので何もしない。
+        -->レシピを実行。ld.lldでkernel.rlfを生成。
+    -->レシピなし。何もしない。
+    ```
+- 上記のコードで作成したイメージを実行した結果が以下。
+  ![Image 1](ascii_character_fornt_drawing.png)
