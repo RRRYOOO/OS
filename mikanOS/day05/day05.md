@@ -246,4 +246,4 @@
   WriteString(*pixel_writer, 8, 66, "Hello,world!", {0, 0, 255});
   ```
 - 実行結果は以下。  
-  ![Image 1](ascii_character_fornt_drawing.png)
+  ![Image 1](HelloWorld_drawing.png)
