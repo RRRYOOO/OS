@@ -245,5 +245,28 @@
   ```
   WriteString(*pixel_writer, 8, 66, "Hello,world!", {0, 0, 255});
   ```
-- 実行結果は以下。  
-  ![Image 1](HelloWorld_drawing.png)
+  - 実行結果は以下。  
+    ![Image 1](HelloWorld_drawing.png)
+- 次に書式整形付きの文字列表示を実装する。この実現には、printf()のように%dなどを解釈できる関数を準備する必要がある。
+- ここでは、Newlibという標準Cライブラリを使うことにする。Newlibは、OSが入っていない組み込み機器等でも使えるように、移植性が高い作りになっている。
+- このライブラリは、既に用意した開発環境に含まれていて、$HOME/osbook/devenv/x86_64-elf以下に配置されている。includeディレクトリに各種のヘッダーファイル、libディレクトリに各種のライブラリファイルがある。
+- 標準Cライブラリに含まれるsprintf()を使って書式付き文字列の表示を行う。そのためには、\<cstdio\>をインクルードしておく必要がある。
+- 以下にsprintf()を使用して書式整形した文字列を表示するコードを示す。
+  #### <main.cpp（sprintf()で書式整形）>
+  ```
+  char buf[128];
+  sprintf(buf, "1 + 2 = %d", 1 + 2); 
+  WriteString(*pixel_writer, 8, 66, buf, {0, 0, 0});
+  ```
+- NewlibはできるだけOSに依存しないように実装されているが、malloc()やprintf()といった動的メモリ管理や入出力などのOSの機能を使用するライブラリ関数がいくつか含まれる。Newlibでは、OSに依存する部分は標準関数から別の関数に切り出されていて、Newlibを使用する人が独自に実装することになっている。
+- sprintf()を使う際に定義しなければならない関数群をnewlib_support.cにまとめて定義する。
+  #### <newlib_support.c（sprintf()を使用するための関数群）>
+  ```
+  #include <sys/types.h>
+  
+  caddr_t sbrk(int incr) {
+    return NULL;
+  }
+  ```
+  - 実行結果は以下。  
+    ![Image 1](string_drawing.png)
