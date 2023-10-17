@@ -229,3 +229,21 @@
     ```
 - 上記のコードで作成したイメージを実行した結果が以下。
   ![Image 1](ascii_character_fornt_drawing.png)
+## 5.4 文字列描画とsprintf()（osbook_day05d）
+- 1文字ずつではなく、printf()のように書式付きの文字列の表示を実装する。
+  #### <font.cpp（文字列描画用の関数）>
+  ```
+  void WriteString(PixelWriter& writer, int x, int y, const char* s, const PixelColor& color) {
+    for (int i = 0; s[i] != '\0'; ++i) {
+      WriteAscii(writer, x + 8 * i, y, s[i], color);
+    }
+  }
+  ```
+  - 文字列の文字数だけfor文で繰り返して、WriteAscii()をコールする。
+- メイン関数から上記の関数を呼び出して、「Hello,world!」と表示されるようにする。
+  #### <main.cpp（文字列描画用の関数でHello,worldを表示）>
+  ```
+  WriteString(*pixel_writer, 8, 66, "Hello,world!", {0, 0, 255});
+  ```
+- 実行結果は以下。  
+  ![Image 1](ascii_character_fornt_drawing.png)
